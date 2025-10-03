@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forgejo
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: forgejo
+  template:
+    metadata:
+      labels:
+        app: forgejo
+    spec:
+      containers:
+      - name: forgejo
+        image: forgejo/forgejo:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: DATABASE_HOST
+          value: "postgresql.default.svc.cluster.local"
+        - name: DATABASE_USER
+          value: "forgejo"
+        - name: DATABASE_PASSWORD
+          value: "forgejopassword"
+        - name: DATABASE_NAME
+          value: "forgejo"
