@@ -5,20 +5,38 @@
   	"/".device = "/dev/nvme0n1p2";
 	"/boot" = {
 	  device = "/dev/nvme0n1p1";
-	  fsType = "fat32";
+	  fsType = "vfat";
 	};
   };
 
   boot = {
 	loader = {
+		efi = {
+		  efiSysMountPoint = "/boot";
+		};
 	  grub.enable = false;
 	  systemd-boot.enable = true;
 	};
+	kernelModules = [ "r8125" "r8169" ];
+	extraModulePackages = with config.boot.kernelPackages; [ r8125 ];
   };
 
+  users.users.dominic = {
+	isNormalUser = true;
+	initialPassword = "pw123";
+	extraGroups = [ "video" "wheel" ];
+  };
+
+  services.openssh.enable = true;
   networking.hostName = "feanor";
 
-  environment.systemPackages = with pkgs; [ kubectl helm git jq headscale postgresql ];
+  environment.systemPackages = with pkgs; [ kubectl helm git jq headscale postgresql vim ];
+  
+  programs.neovim = {
+	enable = true;
+	defaultEditor = true;
+	vimAlias = true;
+  };
 
   services.k3s.enable = true;
   services.k3s.role = "server";
