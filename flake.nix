@@ -6,7 +6,7 @@
   };
 
   outputs = { self, nixpkgs } @inputs: {
-    nixosConfigurations.homeserver = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.feanor = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [ ./nixos/configuration.nix ];
     };
