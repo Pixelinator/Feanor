@@ -31,7 +31,7 @@
   services.openssh.enable = true;
   networking.hostName = "feanor";
 
-  environment.systemPackages = with pkgs; [ kubectl helm git jq headscale postgresql vim btop ];
+  environment.systemPackages = with pkgs; [ kubectl kubernetes-helm git jq headscale postgresql vim btop ];
   
   programs.neovim = {
 	enable = true;
