@@ -22,6 +22,22 @@
 	extraModulePackages = with config.boot.kernelPackages; [ r8125 ];
   };
 
+  # networking
+  networking.hostName = "feanor";
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [
+      22 # ssh
+      80 # http
+      5432
+      6443 # k3s
+      8080
+    ];
+    allowedUDPPorts = [
+      10001 # unifi discovery
+    ];
+  };
+
   users.users.dominic = {
 	isNormalUser = true;
 	initialPassword = "pw123";
@@ -29,8 +45,6 @@
   };
 
   services.openssh.enable = true;
-  networking.hostName = "feanor";
-
   environment.systemPackages = with pkgs; [ kubectl kubernetes-helm git jq headscale postgresql vim btop ];
   
   programs.neovim = {
@@ -41,24 +55,5 @@
 
   services.k3s.enable = true;
   services.k3s.role = "server";
-  services.k3s.extraFlags = [ "--disable=servicelb" "--disable=traefik" "--write-kubeconfig-mode=0644" ];
-
-  # HeadScale
-  services.headscale.enable = false;
-  services.headscale.settings.database.postgres.host = "127.0.0.1";
-  services.headscale.settings.database.postgres.port = 5432;
-  services.headscale.settings.database.postgres.user = "headscale";
-  services.headscale.settings.database.postgres.password_file = "headscalepassword";
-  services.headscale.settings.database.postgres.name = "headscale";
-
-  networking.firewall.allowedTCPPorts = [ 22 8080 5432 ];
-
-  # PostgreSQL
-  services.postgresql.enable = true;
-  services.postgresql.ensureDatabases = [ "headscale" "forgejo" ];
-  services.postgresql.ensureUsers = [
-    { name = "headscale";}
-    { name = "forgejo";}
-  ];
-
+  services.k3s.extraFlags = [ "--disable=servicelb" "--disable=traefik" "--write-kubeconfig-mode=0644" "--bind-address=127.0.0.1" ];
 }
