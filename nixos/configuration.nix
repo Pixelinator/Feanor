@@ -2,6 +2,7 @@
 {
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   system.stateVersion = "25.05";
+  time.timeZone = "Europe/Berlin";
   fileSystems = {
   	"/".device = "/dev/nvme0n1p2";
 	"/boot" = {
