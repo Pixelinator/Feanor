@@ -30,9 +30,12 @@
     allowedTCPPorts = [
       22 # ssh
       80 # http
+      443 # https
       5432
       6443 # k3s
       8080
+      30080
+      30081
     ];
     allowedUDPPorts = [
       10001 # unifi discovery
@@ -46,7 +49,7 @@
   };
 
   services.openssh.enable = true;
-  environment.systemPackages = with pkgs; [ kubectl kubernetes-helm git jq headscale postgresql vim btop ];
+  environment.systemPackages = with pkgs; [ kubectl kubernetes-helm git jq headscale postgresql vim btop argocd ];
   
   programs.neovim = {
 	enable = true;
@@ -56,5 +59,14 @@
 
   services.k3s.enable = true;
   services.k3s.role = "server";
-  services.k3s.extraFlags = [ "--disable=servicelb" "--disable=traefik" "--write-kubeconfig-mode=0644" "--bind-address=127.0.0.1" ];
+  services.k3s.extraFlags = [ 
+    "--disable=servicelb"
+    "--disable=traefik"
+    "--write-kubeconfig-mode=0644" 
+    "--bind-address=0.0.0.0"
+    "--advertise-address=192.168.188.47"
+    "--tls-san=192.168.188.47"
+    "--tls-san=localhost"
+  ];
+
 }
