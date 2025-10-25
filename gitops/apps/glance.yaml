@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: glance-dashboard
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://rubxkube.github.io/charts/
+    chart: glance
+    targetRevision: 0.0.10
+    # 6. Optional: Minimal values if you need to override defaults (e.g., to set the image tag)
+    # values: |
+    #   image:
+    #     tag: v0.3.0
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: glance
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
