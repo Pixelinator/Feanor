@@ -49,8 +49,18 @@
   };
 
   services.openssh.enable = true;
-  environment.systemPackages = with pkgs; [ kubectl kubernetes-helm git jq headscale postgresql vim btop argocd ];
-  
+  environment.systemPackages = with pkgs; [ kubectl kubernetes-helm git jq headscale postgresql vim btop tmux starship argocd ];
+
+  programs.starship = {
+    enable = true;
+    settings = {
+	add_newline = true;
+    };
+  };
+  programs.bash.shellInit = ''
+      eval "$(starship init bash)"
+  '';
+
   programs.neovim = {
 	enable = true;
 	defaultEditor = true;
