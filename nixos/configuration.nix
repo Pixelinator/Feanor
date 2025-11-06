@@ -69,10 +69,7 @@
 
   services.k3s.enable = true;
   services.k3s.role = "server";
-  services.k3s.extraFlags = [ 
-    "--disable=servicelb"
-    "--disable=traefik"
-    "--write-kubeconfig-mode=0644" 
+  services.k3s.extraFlags = [
     "--bind-address=0.0.0.0"
     "--advertise-address=192.168.188.47"
     "--tls-san=192.168.188.47"
