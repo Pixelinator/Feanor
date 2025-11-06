@@ -113,7 +113,7 @@ spec:
   #       - glance.feanor.local
   #     secretName: glance-tls
   rules:
-    - host: 192.168.188.47 # <-- CHANGE to your domain or remove host for nip.io testing
+    - host: feanor # <-- CHANGE to your domain or remove host for nip.io testing
       http:
         paths:
           - path: / # Route all paths
