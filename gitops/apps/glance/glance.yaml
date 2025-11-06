@@ -105,8 +105,8 @@ metadata:
   annotations:
     # Example annotations for the NGINX ingress controller. If you use Traefik,
     # change accordingly or remove these annotations.
-    kubernetes.io/ingress.class: nginx # Route with the nginx controller
-    nginx.ingress.kubernetes.io/ssl-redirect: "true" # Force HTTPS if certs exist
+    kubernetes.io/ingress.class: traefik # Route with the nginx controller
+    traefik.ingress.kubernetes.io/router.tls: "true" # Force HTTPS if certs exist
 spec:
   # If you use cert-manager, you can add a TLS section for automatic certs.
   # tls:
