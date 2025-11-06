@@ -106,7 +106,6 @@ metadata:
     # Example annotations for the NGINX ingress controller. If you use Traefik,
     # change accordingly or remove these annotations.
     kubernetes.io/ingress.class: traefik # Route with the nginx controller
-    traefik.ingress.kubernetes.io/router.tls: "true" # Force HTTPS if certs exist
 spec:
   # If you use cert-manager, you can add a TLS section for automatic certs.
   # tls:
@@ -114,7 +113,7 @@ spec:
   #       - glance.feanor.local
   #     secretName: glance-tls
   rules:
-    - host: glance.feanor.local # <-- CHANGE to your domain or remove host for nip.io testing
+    - host: 192.168.188.47 # <-- CHANGE to your domain or remove host for nip.io testing
       http:
         paths:
           - path: / # Route all paths
