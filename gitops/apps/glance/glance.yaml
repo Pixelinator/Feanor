@@ -96,7 +96,7 @@ spec:
 ---
 # -------------------------------- INGRESS -----------------------------------
 # Only apply this if you already run an ingress controller (e.g., NGINX or Traefik).
-# It will let you access Glance at http(s)://glance.yourdomain.tld/
+# It will let you access Glance at http(s)://glance.feanor.local/
 apiVersion: networking.k8s.io/v1 # API group for Ingress
 kind: Ingress # HTTP(S) routing to Services
 metadata:
@@ -111,10 +111,10 @@ spec:
   # If you use cert-manager, you can add a TLS section for automatic certs.
   # tls:
   #   - hosts:
-  #       - glance.yourdomain.tld
+  #       - glance.feanor.local
   #     secretName: glance-tls
   rules:
-    - host: glance.yourdomain.tld # <-- CHANGE to your domain or remove host for nip.io testing
+    - host: glance.feanor.local # <-- CHANGE to your domain or remove host for nip.io testing
       http:
         paths:
           - path: / # Route all paths
