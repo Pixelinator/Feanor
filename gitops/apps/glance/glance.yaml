@@ -1,0 +1,126 @@
+# ------------------------------- NAMESPACE ----------------------------------
+apiVersion: v1 # API group for core objects like Namespace
+kind: Namespace # We create an isolated namespace for Glance
+metadata:
+  name: glance # The namespace name (you can change it)
+---
+# ------------------------------- CONFIGMAP ----------------------------------
+apiVersion: v1 # Core API group again
+kind: ConfigMap # Key/value or file-like data for pods
+metadata:
+  name: glance-config # ConfigMap name
+  namespace: glance # Put it in the 'glance' namespace
+data:
+  # The key becomes the filename inside the container because we'll mount the
+  # ConfigMap as files. Glance expects /app/config/glance.yml based on docs.
+  # We'll name the key exactly 'glance.yml'.
+  glance.yml: | # Start of the file content (literal block)
+    # >>> BEGIN your Glance app configuration (copied from glance-config.yml) <<<
+    pages:
+      - name: Home
+        columns:
+          - size: full
+            widgets:
+              - type: clock
+              - type: rss
+                limit: 5
+                feeds:
+                  - url: https://selfh.st/rss/
+                    title: selfh.st
+    # >>> END your Glance app configuration <<<
+---
+# ------------------------------- DEPLOYMENT ---------------------------------
+apiVersion: apps/v1 # API group for Deployments
+kind: Deployment # Ensures the desired number of pods is running
+metadata:
+  name: glance # Deployment name
+  namespace: glance # Same namespace as above
+spec:
+  replicas: 1 # Run a single pod (increase for HA if needed)
+  selector:
+    matchLabels:
+      app: glance # Label the Deployment will look for
+  template: # Pod template (what to run)
+    metadata:
+      labels:
+        app: glance # Labels placed on the pod (must match selector)
+    spec:
+      containers:
+        - name: glance # Container name inside the pod
+          # Official container image from the Glance project
+          image: glanceapp/glance:latest # You can pin a version tag later
+          imagePullPolicy: IfNotPresent # Avoid pulling if already cached
+          ports:
+            - containerPort:
+                8080 # Glance listens on 8080 in the container
+                # (as defined in the image)
+                # Do not change containerPort, map at Service/Ingress instead.
+          volumeMounts:
+            - name: config # Mount our config volume
+              mountPath:
+                /app/config # Glance looks for /app/config/glance.yml
+                # (matches Docker instructions)
+              readOnly: true # ConfigMap is read-only inside pods
+          # Optional: set resource requests/limits once you're comfy with K8s
+          # resources:
+          #   requests:
+          #     cpu: "50m"
+          #     memory: "64Mi"
+          #   limits:
+          #     cpu: "500m"
+          #     memory: "256Mi"
+      volumes:
+        - name: config # Define a volume named 'config'
+          configMap:
+            name: glance-config # Source the ConfigMap we created
+            items:
+              - key: glance.yml # Only mount this single key
+                path: glance.yml # As this filename in /app/config
+---
+# -------------------------------- SERVICE -----------------------------------
+apiVersion: v1 # Core API for Services
+kind: Service # Stable internal access to the pod(s)
+metadata:
+  name: glance # Service name
+  namespace: glance # Same namespace
+spec:
+  type: ClusterIP # Internal-only service (default); expose via Ingress
+  selector:
+    app: glance # Route traffic to pods with this label
+  ports:
+    - name: http # Port name (used by Ingress too)
+      port: 8080 # Service port inside the cluster
+      targetPort:
+        8080 # Forward to the containerPort on the pod
+        # (Glance serves on 8080 by default)
+---
+# -------------------------------- INGRESS -----------------------------------
+# Only apply this if you already run an ingress controller (e.g., NGINX or Traefik).
+# It will let you access Glance at http(s)://glance.yourdomain.tld/
+apiVersion: networking.k8s.io/v1 # API group for Ingress
+kind: Ingress # HTTP(S) routing to Services
+metadata:
+  name: glance
+  namespace: glance
+  annotations:
+    # Example annotations for the NGINX ingress controller. If you use Traefik,
+    # change accordingly or remove these annotations.
+    kubernetes.io/ingress.class: nginx # Route with the nginx controller
+    nginx.ingress.kubernetes.io/ssl-redirect: "true" # Force HTTPS if certs exist
+spec:
+  # If you use cert-manager, you can add a TLS section for automatic certs.
+  # tls:
+  #   - hosts:
+  #       - glance.yourdomain.tld
+  #     secretName: glance-tls
+  rules:
+    - host: glance.yourdomain.tld # <-- CHANGE to your domain or remove host for nip.io testing
+      http:
+        paths:
+          - path: / # Route all paths
+            pathType: Prefix # Prefix match on the path
+            backend:
+              service:
+                name: glance # Send to our Service named 'glance'
+                port:
+                  number: 8080 # Service port we defined above
