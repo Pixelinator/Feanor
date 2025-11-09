@@ -8,7 +8,10 @@
   outputs = { self, nixpkgs } @inputs: {
     nixosConfigurations.feanor = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      modules = [ ./nixos/configuration.nix ];
+      modules = [ 
+        ./nixos/configuration.nix
+        ./nixos/power-saving.nix
+      ];
     };
   };
 }
