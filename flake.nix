@@ -10,7 +10,6 @@
       system = "x86_64-linux";
       modules = [ 
         ./nixos/configuration.nix
-        ./nixos/power-saving.nix
       ];
     };
   };
