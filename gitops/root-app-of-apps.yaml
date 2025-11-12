@@ -1,23 +1,32 @@
-# the Root Application
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: all-infrastructure
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
-  source:
-    repoURL: https://github.com/Pixelinator/Feanor.git
-    targetRevision: HEAD
-    path: gitops/apps
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: argocd
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/Pixelinator/Feanor.git
+        revision: HEAD
+        directories:
+          - path: gitops/apps/*
+  template:
+    metadata:
+      name: "{{.path.basename}}"
+    spec:
+      project: "default"
+      source:
+        repoURL: https://github.com/Pixelinator/Feanor.git
+        targetRevision: HEAD
+        path: "{{.path.path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{.path.basename}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
