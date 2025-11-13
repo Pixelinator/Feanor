@@ -34,6 +34,8 @@
       5432
       6443 # k3s
       8080
+      9100 # prometheus node exporter
+      10250 # kubernetes metrics
       30080
       30081
     ];
