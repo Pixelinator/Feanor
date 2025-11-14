@@ -1,0 +1,7 @@
+apiVersion: v2
+name: postgres-operator
+version: 0.1.0
+dependencies:
+  - name: postgres-operator
+    version: "1.14.0"
+    repository: "https://zalando.github.io/postgres-operator/charts/postgres-operator"
