@@ -1,5 +1,4 @@
 authentik:
-  ---
   # -- Provide a name in place of `authentik`. Prefer using global.nameOverride if possible
   nameOverride: ""
   # -- String to fully override `"authentik.fullname"`. Prefer using global.fullnameOverride if possible
@@ -7,10 +6,8 @@ authentik:
   # -- Override the Kubernetes version, which is used to evaluate certain manifests
   kubeVersionOverride: ""
 
-
   ## Globally shared configuration for authentik components.
   global:
-
     # To override bitnami images
     security:
       allowInsecureImages: true
@@ -22,7 +19,8 @@ authentik:
     # -- A custom namespace to override the default namespace for the deployed resources.
     namespaceOverride: ""
     # -- Common labels for all resources.
-    additionalLabels: {}
+    additionalLabels:
+      {}
       # app: authentik
 
     # Number of old deployment ReplicaSets to retain. The rest will be garbage collected.
@@ -59,13 +57,15 @@ authentik:
 
     # -- Toggle and define pod-level security context.
     # @default -- `{}` (See [values.yaml])
-    securityContext: {}
+    securityContext:
+      {}
       # runAsUser: 1000
       # runAsGroup: 1000
       # fsGroup: 1000
 
     # -- Mapping between IP and hostnames that will be injected as entries in the pod's hosts files
-    hostAliases: []
+    hostAliases:
+      []
       # - ip: 10.20.30.40
       #   hostnames:
       #     - my.hostname
@@ -88,7 +88,8 @@ authentik:
         # -- Default node affinity rules. Either `none`, `soft` or `hard`
         type: hard
         # -- Default match expressions for node affinity
-        matchExpressions: []
+        matchExpressions:
+          []
           # - key: topology.kubernetes.io/zone
           #   operator: In
           #   values:
@@ -97,13 +98,15 @@ authentik:
 
     # -- Default [TopologySpreadConstraints] rules for all components
     ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
-    topologySpreadConstraints: []
+    topologySpreadConstraints:
+      []
       # - maxSkew: 1
       #   topologyKey: topology.kubernetes.io/zone
       #   whenUnsatisfiable: DoNotSchedule
 
     # -- Deployment strategy for all deployed Deployments
-    deploymentStrategy: {}
+    deploymentStrategy:
+      {}
       # type: RollingUpdate
       # rollingUpdate:
       #   maxSurge: 25%
@@ -112,7 +115,8 @@ authentik:
     # -- Environment variables to pass to all deployed Deployments. Does not apply to GeoIP
     # See configuration options at https://goauthentik.io/docs/installation/configuration/
     # @default -- `[]` (See [values.yaml])
-    env: []
+    env:
+      []
       # - name: AUTHENTIK_VAR_NAME
       #   value: VALUE
       # - name: AUTHENTIK_VAR_OTHER
@@ -128,7 +132,8 @@ authentik:
 
     # -- envFrom to pass to all deployed Deployments. Does not apply to GeoIP
     # @default -- `[]` (See [values.yaml])
-    envFrom: []
+    envFrom:
+      []
       # - configMapRef:
       #     name: config-map-name
       # - secretRef:
@@ -136,16 +141,17 @@ authentik:
 
     # -- Additional volumeMounts to all deployed Deployments. Does not apply to GeoIP
     # @default -- `[]` (See [values.yaml])
-    volumeMounts: []
+    volumeMounts:
+      []
       # - name: custom
       #   mountPath: /custom
 
     # -- Additional volumes to all deployed Deployments.
     # @default -- `[]` (See [values.yaml])
-    volumes: []
+    volumes:
+      []
       # - name: custom
       #   emptyDir: {}
-
 
   ## Authentik configuration
   authentik:
@@ -215,7 +221,6 @@ authentik:
       host: "{{ .Release.Name }}-redis-master"
       password: ""
 
-
   blueprints:
     # -- List of config maps to mount blueprints from.
     # Only keys in the configMap ending with `.yaml` will be discovered and applied.
@@ -223,7 +228,6 @@ authentik:
     # -- List of secrets to mount blueprints from.
     # Only keys in the secret ending with `.yaml` will be discovered and applied.
     secrets: []
-
 
   ## authentik server
   server:
@@ -249,7 +253,8 @@ authentik:
       # -- Average memory utilization percentage for the authentik server [HPA]
       targetMemoryUtilizationPercentage: ~
       # -- Configures the scaling behavior of the target in both Up and Down directions.
-      behavior: {}
+      behavior:
+        {}
         # scaleDown:
         #   stabilizationWindowSeconds: 300
         #   policies:
@@ -305,7 +310,8 @@ authentik:
     # -- Environment variables to pass to the authentik server. Does not apply to GeoIP
     # See configuration options at https://goauthentik.io/docs/installation/configuration/
     # @default -- `[]` (See [values.yaml])
-    env: []
+    env:
+      []
       # - name: AUTHENTIK_VAR_NAME
       #   value: VALUE
       # - name: AUTHENTIK_VAR_OTHER
@@ -321,7 +327,8 @@ authentik:
 
     # -- envFrom to pass to the authentik server. Does not apply to GeoIP
     # @default -- `[]` (See [values.yaml])
-    envFrom: []
+    envFrom:
+      []
       # - configMapRef:
       #     name: config-map-name
       # - secretRef:
@@ -346,12 +353,14 @@ authentik:
     #     - echo init
 
     # -- Additional volumeMounts to the authentik server main container
-    volumeMounts: []
+    volumeMounts:
+      []
       # - name: custom
       #   mountPath: /custom
 
     # -- Additional volumes to the authentik server pod
-    volumes: []
+    volumes:
+      []
       # - name: custom
       #   emptyDir: {}
 
@@ -365,7 +374,8 @@ authentik:
     podLabels: {}
 
     # -- Resource limits and requests for the authentik server
-    resources: {}
+    resources:
+      {}
       # requests:
       #   cpu: 100m
       #   memory: 512Mi
@@ -394,14 +404,16 @@ authentik:
 
     # -- authentik server pod-level security context
     # @default -- `{}` (See [values.yaml])
-    securityContext: {}
+    securityContext:
+      {}
       # runAsUser: 1000
       # runAsGroup: 1000
       # fsGroup: 1000
 
     # -- authentik server container-level security context
     # @default -- See [values.yaml]
-    containerSecurityContext: {}
+    containerSecurityContext:
+      {}
       # Not all of the following has been tested. Use at your own risk.
       # runAsNonRoot: true
       # readOnlyRootFilesystem: true
@@ -485,14 +497,16 @@ authentik:
     # @default -- `[]` (defaults to global.topologySpreadConstraints)
     ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
     ## If labelSelector is left out, it will default to the labelSelector configuration of the deployment
-    topologySpreadConstraints: []
+    topologySpreadConstraints:
+      []
       # - maxSkew: 1
       #   topologyKey: topology.kubernetes.io/zone
       #   whenUnsatisfiable: DoNotSchedule
 
     # -- Deployment strategy to be added to the authentik server Deployment
     # @default -- `{}` (defaults to global.deploymentStrategy)
-    deploymentStrategy: {}
+    deploymentStrategy:
+      {}
       # type: RollingUpdate
       # rollingUpdate:
       #   maxSurge: 25%
@@ -564,7 +578,8 @@ authentik:
         # -- Prometheus [MetricsRelabelConfigs] to apply to samples before ingestion
         metricRelabelings: []
         # -- Prometheus ServiceMonitor selector
-        selector: {}
+        selector:
+          {}
           # prometheus: kube-prometheus
 
         # -- Prometheus ServiceMonitor scheme
@@ -588,7 +603,8 @@ authentik:
       # -- defines which ingress controller will implement the resource
       ingressClassName: ""
       # -- List of ingress hosts
-      hosts: []
+      hosts:
+        []
         # - authentik.domain.tld
 
       # -- List of ingress paths
@@ -597,7 +613,8 @@ authentik:
       # -- Ingress path type. One of `Exact`, `Prefix` or `ImplementationSpecific`
       pathType: Prefix
       # -- additional ingress paths
-      extraPaths: []
+      extraPaths:
+        []
         # - path: /*
         #   pathType: Prefix
         #   backend:
@@ -607,7 +624,8 @@ authentik:
         #         name: use-annotation
 
       # -- ingress TLS configuration
-      tls: []
+      tls:
+        []
         # - secretName: authentik-tls
         #   hosts:
         #     - authentik.domain.tld
@@ -655,7 +673,6 @@ authentik:
         # -- Additional custom rules that can be added to the route
         additionalRules: []
 
-
   ## authentik worker
   worker:
     # -- whether to enable worker resources
@@ -680,7 +697,8 @@ authentik:
       # -- Average memory utilization percentage for the authentik worker [HPA]
       targetMemoryUtilizationPercentage: ~
       # -- Configures the scaling behavior of the target in both Up and Down directions.
-      behavior: {}
+      behavior:
+        {}
         # scaleDown:
         #   stabilizationWindowSeconds: 300
         #   policies:
@@ -736,7 +754,8 @@ authentik:
     # -- Environment variables to pass to the authentik worker. Does not apply to GeoIP
     # See configuration options at https://goauthentik.io/docs/installation/configuration/
     # @default -- `[]` (See [values.yaml])
-    env: []
+    env:
+      []
       # - name: AUTHENTIK_VAR_NAME
       #   value: VALUE
       # - name: AUTHENTIK_VAR_OTHER
@@ -752,7 +771,8 @@ authentik:
 
     # -- envFrom to pass to the authentik worker. Does not apply to GeoIP
     # @default -- `[]` (See [values.yaml])
-    envFrom: []
+    envFrom:
+      []
       # - configMapRef:
       #     name: config-map-name
       # - secretRef:
@@ -777,12 +797,14 @@ authentik:
     #     - echo init
 
     # -- Additional volumeMounts to the authentik worker main container
-    volumeMounts: []
+    volumeMounts:
+      []
       # - name: custom
       #   mountPath: /custom
 
     # -- Additional volumes to the authentik worker pod
-    volumes: []
+    volumes:
+      []
       # - name: custom
       #   emptyDir: {}
 
@@ -796,7 +818,8 @@ authentik:
     podLabels: {}
 
     # -- Resource limits and requests for the authentik worker
-    resources: {}
+    resources:
+      {}
       # requests:
       #   cpu: 100m
       #   memory: 512Mi
@@ -825,14 +848,16 @@ authentik:
 
     # -- authentik worker pod-level security context
     # @default -- `{}` (See [values.yaml])
-    securityContext: {}
+    securityContext:
+      {}
       # runAsUser: 1000
       # runAsGroup: 1000
       # fsGroup: 1000
 
     # -- authentik worker container-level security context
     # @default -- See [values.yaml]
-    containerSecurityContext: {}
+    containerSecurityContext:
+      {}
       # Not all of the following has been tested. Use at your own risk.
       # runAsNonRoot: true
       # readOnlyRootFilesystem: true
@@ -917,14 +942,16 @@ authentik:
     # @default -- `[]` (defaults to global.topologySpreadConstraints)
     ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
     ## If labelSelector is left out, it will default to the labelSelector configuration of the deployment
-    topologySpreadConstraints: []
+    topologySpreadConstraints:
+      []
       # - maxSkew: 1
       #   topologyKey: topology.kubernetes.io/zone
       #   whenUnsatisfiable: DoNotSchedule
 
     # -- Deployment strategy to be added to the authentik worker Deployment
     # @default -- `{}` (defaults to global.deploymentStrategy)
-    deploymentStrategy: {}
+    deploymentStrategy:
+      {}
       # type: RollingUpdate
       # rollingUpdate:
       #   maxSurge: 25%
@@ -959,7 +986,8 @@ authentik:
         # -- Prometheus [MetricsRelabelConfigs] to apply to samples before ingestion
         metricRelabelings: []
         # -- Prometheus ServiceMonitor selector
-        selector: {}
+        selector:
+          {}
           # prometheus: kube-prometheus
 
         # -- Prometheus ServiceMonitor scheme
@@ -973,7 +1001,6 @@ authentik:
         # -- Prometheus ServiceMonitor annotations
         annotations: {}
 
-
   serviceAccount:
     # -- Create service account. Needed for managed outposts
     create: true
@@ -985,7 +1012,6 @@ authentik:
       # disable its creation
       enabled: false
     fullnameOverride: authentik
-
 
   geoip:
     # -- enable GeoIP sidecars for the authentik server and worker pods
@@ -1019,7 +1045,8 @@ authentik:
 
     # -- Environment variables to pass to the GeoIP containers
     # @default -- `[]` (See [values.yaml])
-    env: []
+    env:
+      []
       # - name: GEOIPUPDATE_VAR_NAME
       #   value: VALUE
       # - name: GEOIPUPDATE_VAR_OTHER
@@ -1035,19 +1062,22 @@ authentik:
 
     # -- envFrom to pass to the GeoIP containers
     # @default -- `[]` (See [values.yaml])
-    envFrom: []
+    envFrom:
+      []
       # - configMapRef:
       #     name: config-map-name
       # - secretRef:
       #     name: secret-name
 
     # -- Additional volumeMounts to the GeoIP containers. Make sure the volumes exists for the server and the worker.
-    volumeMounts: []
+    volumeMounts:
+      []
       # - name: custom
       #   mountPath: /custom
 
     # -- Resource limits and requests for GeoIP containers
-    resources: {}
+    resources:
+      {}
       # requests:
       #   cpu: 100m
       #   memory: 128Mi
@@ -1056,7 +1086,8 @@ authentik:
 
     # -- GeoIP container-level security context
     # @default -- See [values.yaml]
-    containerSecurityContext: {}
+    containerSecurityContext:
+      {}
       # Not all of the following has been tested. Use at your own risk.
       # runAsNonRoot: true
       # readOnlyRootFilesystem: true
@@ -1067,14 +1098,14 @@ authentik:
       #   drop:
       #     - ALL
 
-
   prometheus:
     rules:
       enabled: false
       # -- PrometheusRule namespace
       namespace: ""
       # -- PrometheusRule selector
-      selector: {}
+      selector:
+        {}
         # prometheus: kube-prometheus
 
       # -- PrometheusRule labels
@@ -1083,7 +1114,6 @@ authentik:
       annotations: {}
       # -- PrometheusRuleGroup additional annotations
       additionalRuleGroupAnnotations: {}
-
 
   postgresql:
     # -- enable the Bitnami PostgreSQL chart. Refer to https://github.com/bitnami/charts/blob/main/bitnami/postgresql/ for possible values.
@@ -1143,7 +1173,6 @@ authentik:
     metrics:
       resourcesPreset: "none"
 
-
   redis:
     # -- enable the Bitnami Redis chart. Refer to https://github.com/bitnami/charts/blob/main/bitnami/redis/ for possible values.
     enabled: false
@@ -1167,7 +1196,5 @@ authentik:
     sysctl:
       resourcesPreset: "none"
 
-
   # -- additional resources to deploy. Those objects are templated.
   additionalObjects: []
-
