@@ -184,6 +184,10 @@ ingress:
   #    hosts:
   #      - git.example.com
 
+config:
+  server:
+    ROOT_URL: "http://forgejo.local"
+
 # Enables Gateway API HTTPRoute as a replacement for traditional Ingress resources
 ## @section Gateway-API HTTPRoute
 ## @param httpRoute.enabled Enables Gateway API HTTPRoute as a replacement for traditional Ingress resources
