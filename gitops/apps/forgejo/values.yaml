@@ -168,14 +168,13 @@ service:
 ## @param ingress.hosts[0].paths[0].port Target port for Ingress
 ## @param ingress.tls Ingress tls settings
 ingress:
-  enabled: false
-  # className: nginx
-  className:
+  enabled: true
+  className: traefik
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: git.example.com
+    - host: forgejo.local
       paths:
         - path: /
           pathType: Prefix
