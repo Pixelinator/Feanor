@@ -186,7 +186,7 @@ ingress:
 
 config:
   server:
-    ROOT_URL: "http://forgejo.local"
+    ROOT_URL: "http://forgejo.local/"
 
 # Enables Gateway API HTTPRoute as a replacement for traditional Ingress resources
 ## @section Gateway-API HTTPRoute
