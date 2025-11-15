@@ -1,0 +1,8 @@
+apiVersion: v2
+name: forgejo
+version: 0.1.0
+dependencies:
+  - name: forgejo
+    version: "15.0.2"
+    repository: "oci://code.forgejo.org/forgejo-helm"
+
