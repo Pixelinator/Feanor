@@ -1,0 +1,36 @@
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: authentik-database
+  namespace: databases
+spec:
+  teamId: "authentik"
+
+  volume:
+    size: 5Gi
+
+  numberOfInstances: 1
+
+  users:
+    authentik: []
+
+  databases:
+    authentik: authentik
+
+  postgresql:
+    version: "15"
+
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+  patroni:
+    initdb:
+      encoding: "UTF8"
+      locale: "en_US.UTF-8"
+    pg_hba:
+      - host all all 0.0.0.0/0 md5
