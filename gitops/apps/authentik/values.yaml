@@ -315,7 +315,16 @@ authentik:
     # See configuration options at https://goauthentik.io/docs/installation/configuration/
     # @default -- `[]` (See [values.yaml])
     env:
-      []
+      - name: AUTHENTIK_POSTGRESQL__PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: authentik-db-secret
+            key: password
+      - name: AUTHENTIK_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: authentik-secret
+            key: secret_key
       # - name: AUTHENTIK_VAR_NAME
       #   value: VALUE
       # - name: AUTHENTIK_VAR_OTHER
@@ -763,7 +772,16 @@ authentik:
     # See configuration options at https://goauthentik.io/docs/installation/configuration/
     # @default -- `[]` (See [values.yaml])
     env:
-      []
+      - name: AUTHENTIK_POSTGRESQL__PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: authentik-db-secret
+            key: password
+      - name: AUTHENTIK_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: authentik-secret
+            key: secret_key
       # - name: AUTHENTIK_VAR_NAME
       #   value: VALUE
       # - name: AUTHENTIK_VAR_OTHER
@@ -785,10 +803,6 @@ authentik:
       #     name: config-map-name
       # - secretRef:
       #     name: authentik-secret
-
-    extraEnvFrom:
-      - secretRef:
-          name: authentik-secret
 
     # -- Specify postStart and preStop lifecycle hooks for you authentik worker container
     lifecycle: {}
