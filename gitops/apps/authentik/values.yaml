@@ -335,6 +335,10 @@ authentik:
       []
       # - configMapRef:
       #     name: config-map-name
+      # - secretRef:
+      #     name: secret-name
+
+    extraEnvFrom:
       - secretRef:
           name: authentik-secret
 
@@ -779,6 +783,10 @@ authentik:
       []
       # - configMapRef:
       #     name: config-map-name
+      # - secretRef:
+      #     name: authentik-secret
+
+    extraEnvFrom:
       - secretRef:
           name: authentik-secret
 
