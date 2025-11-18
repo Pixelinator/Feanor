@@ -161,11 +161,7 @@ authentik:
     log_level: info
     # -- Secret key used for cookie singing and unique user IDs,
     # don't change this after the first install
-    secret_key:
-      valueFrom:
-        secretKeyRef:
-          name: authentik-secret
-          key: secret_key
+    secret_key: ""
     events:
       context_processors:
         # -- Path for the GeoIP City database. If the file doesn't exist, GeoIP features are disabled.
@@ -339,8 +335,8 @@ authentik:
       []
       # - configMapRef:
       #     name: config-map-name
-      # - secretRef:
-      #     name: secret-name
+      - secretRef:
+          name: authentik-secret
 
     # -- Specify postStart and preStop lifecycle hooks for you authentik server container
     lifecycle: {}
@@ -783,8 +779,8 @@ authentik:
       []
       # - configMapRef:
       #     name: config-map-name
-      # - secretRef:
-      #     name: secret-name
+      - secretRef:
+          name: authentik-secret
 
     # -- Specify postStart and preStop lifecycle hooks for you authentik worker container
     lifecycle: {}
