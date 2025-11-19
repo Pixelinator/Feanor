@@ -33,4 +33,5 @@ spec:
       encoding: "UTF8"
       locale: "en_US.UTF-8"
     pg_hba:
+      - local all all trust
       - host all all 0.0.0.0/0 md5
