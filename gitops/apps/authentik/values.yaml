@@ -312,7 +312,7 @@ authentik:
     # @default -- `[]` (See [values.yaml])
     env:
       - name: AUTHENTIK_POSTGRESQL__HOST
-        value: "authentik-database.databases.svc.cluster.local"
+        value: "authentik-database"
       - name: AUTHENTIK_POSTGRESQL__PORT
         value: "5432"
       - name: AUTHENTIK_POSTGRESQL__NAME
@@ -322,7 +322,7 @@ authentik:
       - name: AUTHENTIK_POSTGRESQL__PASSWORD
         valueFrom:
           secretKeyRef:
-            name: authentik-db-secret
+            name: authentik-database.authentik
             key: password
       - name: AUTHENTIK_SECRET_KEY
         valueFrom:
@@ -773,7 +773,7 @@ authentik:
     # @default -- `[]` (See [values.yaml])
     env:
       - name: AUTHENTIK_POSTGRESQL__HOST
-        value: "authentik-database.databases.svc.cluster.local"
+        value: "authentik-database"
       - name: AUTHENTIK_POSTGRESQL__PORT
         value: "5432"
       - name: AUTHENTIK_POSTGRESQL__NAME
@@ -783,7 +783,7 @@ authentik:
       - name: AUTHENTIK_POSTGRESQL__PASSWORD
         valueFrom:
           secretKeyRef:
-            name: authentik-db-secret
+            name: authentik-database.authentik
             key: password
       - name: AUTHENTIK_SECRET_KEY
         valueFrom:
