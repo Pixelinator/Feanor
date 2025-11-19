@@ -324,7 +324,6 @@ authentik:
           secretKeyRef:
             name: authentik.authentik-database.credentials.postgresql.acid.zalan.do
             key: password
-            namespace: databases
       - name: AUTHENTIK_SECRET_KEY
         valueFrom:
           secretKeyRef:
@@ -786,7 +785,6 @@ authentik:
           secretKeyRef:
             name: authentik.authentik-database.credentials.postgresql.acid.zalan.do
             key: password
-            namespace: databases
       - name: AUTHENTIK_SECRET_KEY
         valueFrom:
           secretKeyRef:
