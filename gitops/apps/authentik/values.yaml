@@ -324,6 +324,7 @@ authentik:
           secretKeyRef:
             name: authentik-database.authentik
             key: password
+            namespace: databases
       - name: AUTHENTIK_SECRET_KEY
         valueFrom:
           secretKeyRef:
@@ -785,6 +786,7 @@ authentik:
           secretKeyRef:
             name: authentik-database.authentik
             key: password
+            namespace: databases
       - name: AUTHENTIK_SECRET_KEY
         valueFrom:
           secretKeyRef:
