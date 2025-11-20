@@ -34,6 +34,15 @@ home-assistant:
     # @default -- See values.yaml
     main:
       enabled: true
+      className: traefik
+      annotations:
+        traefik.ingress.kubernetes.io/rewrite-target: /
+      hosts:
+        - host: home-assistant.local
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+              port: http
 
   # -- Enable devices to be discoverable
   # hostNetwork: true
