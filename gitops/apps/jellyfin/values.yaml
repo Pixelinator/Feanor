@@ -233,7 +233,15 @@ jellyfin:
     # - /dev/dri/renderD128
 
     # -- The list of volumes that will be mounted inside jellyfin pod, to `/media`.
-    mediaVolumes: []
+    mediaVolumes:
+      - name: movies # The name of the mount point inside Jellyfin (will be /media/movies)
+        readOnly: true
+        volumeSpec:
+          hostPath:
+            # This is the path on your Kubernetes node's filesystem
+            path: /home/dominic/media/movies/
+            # Ensure the directory type is specified
+            type: DirectoryOrCreate
     # - name: movies # this volume will be mounted into `/media/movies`
     #   readOnly: false # is this volume readonly ? (optional, default true)
     #   existingClaim: "" # use an existing PVC
