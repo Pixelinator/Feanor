@@ -26,6 +26,11 @@ data:
               - type: calendar
                 first-day-of-week: monday
 
+             - type: weather
+                location: Kassel, Germany
+                units: metric
+                hour-format: 12h # alternatively "24h"
+
               - type: twitch-channels
                 channels:
                   - theprimeagen
@@ -34,10 +39,6 @@ data:
                   - cohhcarnage
                   - christitustech
                   - EJ_SA
-              - type: server-stats
-                servers:
-                  - type: local
-                    name: Services
 
           - size: full
             widgets:
@@ -65,10 +66,10 @@ data:
 
           - size: small
             widgets:
-              - type: weather
-                location: Kassel, Germany
-                units: metric
-                hour-format: 12h # alternatively "24h"
+              - type: server-stats
+                servers:
+                  - type: local
+                    name: Services
 
               - type: monitor
                 cache: 1m
@@ -183,6 +184,7 @@ spec:
                 name: glance # Send to our Service named 'glance'
                 port:
                   number: 8080 # Service port we defined above
+
 
 
 
