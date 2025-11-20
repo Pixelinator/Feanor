@@ -31,15 +31,6 @@ data:
                 units: metric
                 hour-format: 12h # alternatively "24h"
 
-              - type: twitch-channels
-                channels:
-                  - theprimeagen
-                  - j_blow
-                  - giantwaffle
-                  - cohhcarnage
-                  - christitustech
-                  - EJ_SA
-
           - size: full
             widgets:
               - type: group
@@ -184,6 +175,7 @@ spec:
                 name: glance # Send to our Service named 'glance'
                 port:
                   number: 8080 # Service port we defined above
+
 
 
 
