@@ -1,12 +1,15 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: dominic-movies-pv
+  name: dominic-movies-pv # A unique name for the volume
 spec:
   capacity:
-    storage: 100Gi # Estimate your movie size
+    storage: 10Ti # Example size: make this large enough for your movies
   accessModes:
-    - ReadOnlyMany # Or ReadWriteOnce if only one pod uses it
-  storageClassName: manual
+    # ReadOnlyMany is often best for media that multiple pods (if you had them) only read
+    - ReadOnlyMany
+  storageClassName: manual # Use a special class name to prevent dynamic provisioning
   hostPath:
+    # *** This is your actual host path ***
     path: "/home/dominic/media/movies"
+    type: DirectoryOrCreate
