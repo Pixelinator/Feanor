@@ -193,9 +193,9 @@ jellyfin:
 
   ingress:
     # -- Enable ingress resource
-    enabled: false
+    enabled: true
     # -- IngressClass that will be used to implement the Ingress
-    ingressClassName: ""
+    ingressClassName: "traefik"
     # -- Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
     annotations: {}
     # -- Default host for the ingress resource
@@ -205,7 +205,7 @@ jellyfin:
     # -- Ingress path type
     pathType: ImplementationSpecific
     # -- Enable TLS configuration for the hostname defined at apiIngress.hostname parameter
-    tls: true
+    tls: false
     # -- The list of additional hostnames to be covered with this ingress record.
     extraHosts: []
     # -- Any additional paths that may need to be added to the ingress under the main host
