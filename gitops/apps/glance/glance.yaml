@@ -69,6 +69,10 @@ data:
                   - title: Forgejo
                     url: http://forgejo.local/
                     icon: si:forgejo
+                  - title: Jellyfin
+                    url: http://jellyfin.local/
+                    icon: si:jellyfin
+
               - type: releases
                 cache: 1d
                 # Without authentication the Github API allows for up to 60 requests per hour. You can create a
@@ -175,10 +179,4 @@ spec:
                 name: glance # Send to our Service named 'glance'
                 port:
                   number: 8080 # Service port we defined above
-
-
-
-
-
-
 
