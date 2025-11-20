@@ -26,7 +26,7 @@ data:
               - type: calendar
                 first-day-of-week: monday
 
-             - type: weather
+              - type: weather
                 location: Kassel, Germany
                 units: metric
                 hour-format: 12h # alternatively "24h"
@@ -184,6 +184,7 @@ spec:
                 name: glance # Send to our Service named 'glance'
                 port:
                   number: 8080 # Service port we defined above
+
 
 
 
