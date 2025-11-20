@@ -70,25 +70,9 @@ data:
                 cache: 1m
                 title: Services
                 sites:
-                  - title: Jellyfin
-                    url: https://yourdomain.com/
-                    icon: si:jellyfin
-                  - title: Gitea
-                    url: https://yourdomain.com/
-                    icon: si:gitea
-                  - title: qBittorrent # only for Linux ISOs, of course
-                    url: https://yourdomain.com/
-                    icon: si:qbittorrent
-                  - title: Immich
-                    url: https://yourdomain.com/
-                    icon: si:immich
-                  - title: AdGuard Home
-                    url: https://yourdomain.com/
-                    icon: si:adguard
-                  - title: Vaultwarden
-                    url: https://yourdomain.com/
-                    icon: si:vaultwarden
-
+                  - title: Forgejo
+                    url: http://forgejo.local/
+                    icon: si:forgejo
               - type: releases
                 cache: 1d
                 # Without authentication the Github API allows for up to 60 requests per hour. You can create a
@@ -195,5 +179,6 @@ spec:
                 name: glance # Send to our Service named 'glance'
                 port:
                   number: 8080 # Service port we defined above
+
 
 
