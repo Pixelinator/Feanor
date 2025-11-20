@@ -4,4 +4,4 @@ version: 0.1.0
 dependencies:
   - name: jellyfin
     version: "4.0.1"
-    repository: "https://djjudas21.github.io/charts/
+    repository: "https://djjudas21.github.io/charts/"
