@@ -33,11 +33,6 @@ data:
 
           - size: full
             widgets:
-              - type: group
-                widgets:
-                  - type: hacker-news
-                  - type: lobsters
-
               - type: videos
                 channels:
                   - UCXuqSBlHAE6Xw-yeJA0Tunw # Linus Tech Tips
@@ -179,4 +174,5 @@ spec:
                 name: glance # Send to our Service named 'glance'
                 port:
                   number: 8080 # Service port we defined above
+
 
