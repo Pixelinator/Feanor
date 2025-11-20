@@ -34,6 +34,10 @@ data:
                   - cohhcarnage
                   - christitustech
                   - EJ_SA
+              - type: server-stats
+                servers:
+                  - type: local
+                    name: Services
 
           - size: full
             widgets:
@@ -179,6 +183,7 @@ spec:
                 name: glance # Send to our Service named 'glance'
                 port:
                   number: 8080 # Service port we defined above
+
 
 
 
