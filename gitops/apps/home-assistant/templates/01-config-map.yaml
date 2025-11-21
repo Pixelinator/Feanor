@@ -1,10 +1,7 @@
-{{- if not (lookup "v1" "ConfigMap" .Release.Namespace (printf "%s-%s" (include "home-assistant.fullname" .) "config")) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "home-assistant.fullname" . }}-config
-  labels:
-    {{- include "home-assistant.labels" . | nindent 4 }}
+  name: home-assistant-config
 data:
   configuration.yaml: |
     http:
@@ -14,6 +11,3 @@ data:
         - 10.43.0.0/16
         - 127.0.0.1
         - ::1
-
-    default_config:
-{{- end }}
