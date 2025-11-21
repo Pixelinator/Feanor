@@ -49,6 +49,9 @@ data:
                   - type: reddit
                     subreddit: selfhosted
                     show-thumbnails: true
+                  - type: reddit
+                    subreddit: homelab
+                    show-thumbnails: true
 
           - size: small
             widgets:
@@ -174,5 +177,6 @@ spec:
                 name: glance # Send to our Service named 'glance'
                 port:
                   number: 8080 # Service port we defined above
+
 
 
