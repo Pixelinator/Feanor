@@ -6,6 +6,8 @@ home-assistant:
   # https://github.com/geek-cookbook/library-charts/tree/main/charts/stable/common/values.yaml
   #
 
+  existingConfigmap: "home-assistant-config"
+
   image:
     # -- image repository
     repository: ghcr.io/home-assistant/home-assistant
