@@ -44,6 +44,17 @@ home-assistant:
               pathType: ImplementationSpecific
               port: http
 
+  config:
+    configuration.yaml: |
+      # This config tells Home Assistant to accept headers from the reverse proxy
+      http:
+        use_x_forwarded_for: true
+        trusted_proxies:
+          - 10.42.0.0/16   # K3s Default Pod CIDR (Traefik IP 10.42.0.12 is in this range)
+          - 10.43.0.0/16   # K3s Default Service CIDR (For internal K8s services)
+          - 127.0.0.1      # Localhost for internal proxy communication
+          - ::1            # IPv6 localhost
+
   # -- Enable devices to be discoverable
   # hostNetwork: true
 
