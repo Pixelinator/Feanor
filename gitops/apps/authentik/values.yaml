@@ -621,7 +621,7 @@ authentik:
       ingressClassName: "traefik"
       # -- List of ingress hosts
       hosts:
-        - authentik.local
+        - authentik.eldamar.dev
         # - authentik.domain.tld
 
       # -- List of ingress paths

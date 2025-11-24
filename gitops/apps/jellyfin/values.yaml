@@ -199,7 +199,7 @@ jellyfin:
     # -- Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
     annotations: {}
     # -- Default host for the ingress resource
-    hostname: jellyfin.local
+    hostname: jellyfin.eldamar.dev
     # -- The Path to jellyfin. You may need to set this to '/*' in order to use this with ALB ingress controllers.
     path: /
     # -- Ingress path type

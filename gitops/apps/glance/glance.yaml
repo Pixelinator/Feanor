@@ -65,10 +65,10 @@ data:
                 title: Services
                 sites:
                   - title: Forgejo
-                    url: http://forgejo.local/
+                    url: http://forgejo.eldamar.dev/
                     icon: si:forgejo
                   - title: Jellyfin
-                    url: http://jellyfin.local/
+                    url: http://jellyfin.eldamar.dev/
                     icon: si:jellyfin
 
               - type: releases
@@ -167,7 +167,7 @@ spec:
   #       - glance.feanor.local
   #     secretName: glance-tls
   rules:
-    - host: feanor # <-- CHANGE to your domain or remove host for nip.io testing
+    - host: glance.eldamar.dev # <-- CHANGE to your domain or remove host for nip.io testing
       http:
         paths:
           - path: / # Route all paths
@@ -177,6 +177,4 @@ spec:
                 name: glance # Send to our Service named 'glance'
                 port:
                   number: 8080 # Service port we defined above
-
-
 
