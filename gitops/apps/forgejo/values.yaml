@@ -176,7 +176,7 @@ forgejo:
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
     hosts:
-      - host: forgejo.local
+      - host: forgejo.eldamar.dev
         paths:
           - path: /
             pathType: ImplementationSpecific
@@ -188,7 +188,7 @@ forgejo:
 
   config:
     server:
-      ROOT_URL: "http://forgejo.local/"
+      ROOT_URL: "http://forgejo.eldamar.dev/"
 
   # Enables Gateway API HTTPRoute as a replacement for traditional Ingress resources
   ## @section Gateway-API HTTPRoute

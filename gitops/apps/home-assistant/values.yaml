@@ -38,7 +38,7 @@ home-assistant:
       annotations:
         traefik.ingress.kubernetes.io/rewrite-target: /
       hosts:
-        - host: home-assistant.local
+        - host: home-assistant.eldamar.dev
           paths:
             - path: /
               pathType: ImplementationSpecific
