@@ -160,6 +160,7 @@ metadata:
     # Example annotations for the NGINX ingress controller. If you use Traefik,
     # change accordingly or remove these annotations.
     kubernetes.io/ingress.class: traefik # Route with the nginx controller
+    cert-manager.io/cluster-issuer: letsencrypt-production
 spec:
   # If you use cert-manager, you can add a TLS section for automatic certs.
   ingressClassName: traefik
