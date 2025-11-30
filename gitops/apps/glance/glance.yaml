@@ -162,10 +162,11 @@ metadata:
     kubernetes.io/ingress.class: traefik # Route with the nginx controller
 spec:
   # If you use cert-manager, you can add a TLS section for automatic certs.
-  # tls:
-  #   - hosts:
-  #       - glance.feanor.local
-  #     secretName: glance-tls
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - glance.eldamar.dev
+      secretName: eldamar-dev-tls
   rules:
     - host: glance.eldamar.dev # <-- CHANGE to your domain or remove host for nip.io testing
       http:
