@@ -1,0 +1,17 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-production
+spec:
+  acme:
+    email: forsterdominic2@gmail.com
+    # Production endpoint for trusted certificates
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      # Secret name for the ACME account private key
+      name: letsencrypt-production-account-key
+    solvers:
+      - http01:
+          ingress:
+            # Use 'traefik' as the ingress class for the solver
+            class: traefik
