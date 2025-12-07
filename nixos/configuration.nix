@@ -51,7 +51,7 @@
   };
 
   services.openssh.enable = true;
-  environment.systemPackages = with pkgs; [ kubectl kubernetes-helm git jq headscale postgresql vim btop tmux starship argocd ];
+  environment.systemPackages = with pkgs; [ kubectl kubernetes-helm git jq headscale postgresql vim btop tmux starship argocd kubeseal ];
 
   programs.starship = {
     enable = true;

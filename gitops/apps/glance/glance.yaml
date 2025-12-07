@@ -157,9 +157,6 @@ metadata:
   name: glance
   namespace: glance
   annotations:
-    # Example annotations for the NGINX ingress controller. If you use Traefik,
-    # change accordingly or remove these annotations.
-    kubernetes.io/ingress.class: traefik # Route with the nginx controller
     cert-manager.io/cluster-issuer: letsencrypt-production
 spec:
   # If you use cert-manager, you can add a TLS section for automatic certs.
@@ -167,16 +164,16 @@ spec:
   tls:
     - hosts:
         - glance.eldamar.dev
-      secretName: eldamar-dev-tls
+      secretName: glance-tls
   rules:
-    - host: glance.eldamar.dev # <-- CHANGE to your domain or remove host for nip.io testing
+    - host: glance.eldamar.dev
       http:
         paths:
-          - path: / # Route all paths
-            pathType: Prefix # Prefix match on the path
+          - path: /
+            pathType: Prefix
             backend:
               service:
-                name: glance # Send to our Service named 'glance'
+                name: glance
                 port:
-                  number: 8080 # Service port we defined above
+                  number: 8080
 
