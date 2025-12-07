@@ -614,7 +614,9 @@ authentik:
       # -- enable an ingress resource for the authentik server
       enabled: true
       # -- additional ingress annotations
-      annotations: {}
+      annotations: 
+        # Use cert-manager to automatically issue the certificate via the ClusterIssuer
+        cert-manager.io/cluster-issuer: "letsencrypt-production"
       # -- additional ingress labels
       labels: {}
       # -- defines which ingress controller will implement the resource
@@ -642,10 +644,9 @@ authentik:
 
       # -- ingress TLS configuration
       tls:
-        []
-        # - secretName: authentik-tls
-        #   hosts:
-        #     - authentik.domain.tld
+        - secretName: authentik-tls       # cert-manager will create this Secret
+          hosts:
+            - authentik.eldamar.dev
 
       # -- uses `server.service.servicePortHttps` instead of `server.service.servicePortHttp`
       https: false
