@@ -12,6 +12,8 @@ spec:
       name: letsencrypt-production-account-key
     solvers:
       - dns01:
-          webhook:
-            groupName: acme.porkbun.com
-            solverName: porkbun
+          cloudflare:
+            email: forsterdominic2@gmail.com
+            apiTokenSecretRef:
+              name: cloudflare-api-token-secret
+              key: api-token
