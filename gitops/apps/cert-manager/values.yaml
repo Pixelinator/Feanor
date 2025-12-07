@@ -319,7 +319,11 @@ cert-manager:
   # For example:
   #  extraArgs:
   #    - --controllers=*,-certificaterequests-approver
-  extraArgs: []
+  extraArgs:
+    # Only use the DNS resolvers listed below for propagation checks
+    - --dns01-recursive-nameservers-only
+    # Explicitly query public DNS (Cloudflare, Google)
+    - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
 
   # Additional environment variables to pass to cert-manager controller binary.
   # For example:
