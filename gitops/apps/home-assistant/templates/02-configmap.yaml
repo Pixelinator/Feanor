@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: { { .Values.configMapName } }
+data:
+  configuration.yaml: |
+    homeassistant:
+      time_zone: "Europe/Berlin"
+      unit_system: metric
+    # add additional Home Assistant configuration here
