@@ -3,9 +3,10 @@ kind: Service
 metadata:
   name: home-assistant
 spec:
-  type: { { .Values.service.type } }
+  type: {{ .Values.service.type }}
   ports:
-    - port: { { .Values.service.port } }
-      targetPort: { { .Values.service.port } }
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
   selector:
     app: home-assistant
+
