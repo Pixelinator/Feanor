@@ -31,6 +31,28 @@ data:
                 units: metric
                 hour-format: 12h # alternatively "24h"
 
+          - size: full
+            widgets:
+              - type: videos
+                channels:
+                  - UCXuqSBlHAE6Xw-yeJA0Tunw # Linus Tech Tips
+                  - UCR-DXc1voovS8nhAvccRZhg # Jeff Geerling
+                  - UCsBjURrPoezykLs9EqgamOA # Fireship
+                  - UCBJycsmduvYEL83R_U4JriQ # Marques Brownlee
+                  - UCHnyfMqiRRG1u-2MsSQLbXA # Veritasium
+
+              - type: group
+                widgets:
+                  - type: reddit
+                    subreddit: technology
+                    show-thumbnails: true
+                  - type: reddit
+                    subreddit: selfhosted
+                    show-thumbnails: true
+                  - type: reddit
+                    subreddit: homelab
+                    show-thumbnails: true
+
               - type: custom-api
                 title: Epic Games
                 cache: 1h
@@ -82,28 +104,6 @@ data:
                       <p class="color-negative">Error fetching Epic Games data.</p>
                     {{ end }}
                   </div>
-
-          - size: full
-            widgets:
-              - type: videos
-                channels:
-                  - UCXuqSBlHAE6Xw-yeJA0Tunw # Linus Tech Tips
-                  - UCR-DXc1voovS8nhAvccRZhg # Jeff Geerling
-                  - UCsBjURrPoezykLs9EqgamOA # Fireship
-                  - UCBJycsmduvYEL83R_U4JriQ # Marques Brownlee
-                  - UCHnyfMqiRRG1u-2MsSQLbXA # Veritasium
-
-              - type: group
-                widgets:
-                  - type: reddit
-                    subreddit: technology
-                    show-thumbnails: true
-                  - type: reddit
-                    subreddit: selfhosted
-                    show-thumbnails: true
-                  - type: reddit
-                    subreddit: homelab
-                    show-thumbnails: true
 
           - size: small
             widgets:
@@ -234,6 +234,7 @@ spec:
                 name: glance
                 port:
                   number: 8080
+
 
 
 
