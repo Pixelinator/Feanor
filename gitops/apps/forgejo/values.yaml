@@ -172,6 +172,7 @@ forgejo:
     enabled: true
     className: traefik
     annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-production"
       traefik.ingress.kubernetes.io/rewrite-target: /
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
@@ -181,14 +182,15 @@ forgejo:
           - path: /
             pathType: ImplementationSpecific
             port: http
-    tls: []
-    #  - secretName: chart-example-tls
-    #    hosts:
-    #      - git.example.com
+    tls:
+      - secretName: forgejo-tls
+        hosts:
+          - forgejo.eldamar.dev
+
 
   config:
     server:
-      ROOT_URL: "http://forgejo.eldamar.dev/"
+      ROOT_URL: "https://forgejo.eldamar.dev/"
 
   # Enables Gateway API HTTPRoute as a replacement for traditional Ingress resources
   ## @section Gateway-API HTTPRoute
