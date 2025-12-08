@@ -8,4 +8,11 @@ data:
       time_zone: "Europe/Berlin"
       unit_system: metric
     # add additional Home Assistant configuration here
+  http:
+      use_x_forwarded_for: true
+      trusted_proxies:
+        - 10.42.0.12 # The IP address found in your error log
+        - 127.0.0.1 # Always good practice for local loopback
+        - ::1       # IPv6 loopback
+
 
