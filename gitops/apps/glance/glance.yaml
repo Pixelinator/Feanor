@@ -64,12 +64,18 @@ data:
                 cache: 1m
                 title: Services
                 sites:
+                  - title: Authentik
+                    url: https://authentik.eldamar.dev/
+                    icon: si:authentik
                   - title: Forgejo
-                    url: http://forgejo.eldamar.dev/
+                    url: https://forgejo.eldamar.dev/
                     icon: si:forgejo
                   - title: Jellyfin
-                    url: http://jellyfin.eldamar.dev/
+                    url: https://jellyfin.eldamar.dev/
                     icon: si:jellyfin
+                  - title: HomeAssistant
+                    url: https://home-assistant.eldamar.dev/
+                    icon: si:homeassistant
 
               - type: releases
                 cache: 1d
@@ -176,4 +182,5 @@ spec:
                 name: glance
                 port:
                   number: 8080
+
 
