@@ -98,7 +98,6 @@ forgejo-runner:
 
   securityContext:
     privileged: true
-    runAsUser: 1000
 
   resources: {}
 
