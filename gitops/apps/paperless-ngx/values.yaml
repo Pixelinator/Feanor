@@ -1,0 +1,105 @@
+paperless-ngx:
+  image:
+    repository: ghcr.io/paperless-ngx/paperless-ngx
+    pullPolicy: IfNotPresent
+    tag: "2.14.7"
+
+  env:
+    TZ: Europe/Berlin
+    PAPERLESS_URL: https://paperless.eldamar.dev
+    PAPERLESS_ADMIN_USER: admin
+    PAPERLESS_ADMIN_MAIL: admin@eldamar.dev
+    PAPERLESS_OCR_LANGUAGE: eng
+    PAPERLESS_OCR_LANGUAGES: eng deu
+
+  service:
+    main:
+      ports:
+        http:
+          port: 8000
+
+  ingress:
+    main:
+      enabled: true
+      ingressClassName: "traefik"
+      annotations:
+        cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      hosts:
+        - host: paperless.eldamar.dev
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: paperless-tls
+          hosts:
+            - paperless.eldamar.dev
+
+  persistence:
+    data:
+      enabled: true
+      type: pvc
+      storageClass: ""
+      accessMode: ReadWriteOnce
+      size: 10Gi
+      retain: true
+
+    media:
+      enabled: true
+      type: pvc
+      storageClass: ""
+      accessMode: ReadWriteOnce
+      size: 20Gi
+      retain: true
+
+    consume:
+      enabled: true
+      type: pvc
+      storageClass: ""
+      accessMode: ReadWriteOnce
+      size: 5Gi
+      retain: true
+
+    export:
+      enabled: true
+      type: pvc
+      storageClass: ""
+      accessMode: ReadWriteOnce
+      size: 5Gi
+      retain: true
+
+  postgresql:
+    enabled: true
+    auth:
+      database: paperless
+      username: paperless
+      existingSecret: paperless-secrets
+      secretKeys:
+        adminPasswordKey: postgres-password
+        userPasswordKey: postgres-password
+    primary:
+      persistence:
+        enabled: true
+        size: 8Gi
+        storageClass: ""
+
+  mariadb:
+    enabled: false
+
+  redis:
+    enabled: true
+    architecture: standalone
+    auth:
+      enabled: false
+    master:
+      persistence:
+        enabled: true
+        size: 2Gi
+        storageClass: ""
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
