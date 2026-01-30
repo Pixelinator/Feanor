@@ -128,6 +128,9 @@ data:
                   - title: HomeAssistant
                     url: https://home-assistant.eldamar.dev/
                     icon: si:homeassistant
+                  - title: Paperless-NGX
+                    url: https://paperless.eldamar.dev/
+                    icon: mdi:file-document-multiple
 
               - type: releases
                 cache: 1d
