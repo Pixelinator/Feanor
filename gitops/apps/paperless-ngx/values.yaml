@@ -69,6 +69,8 @@ paperless-ngx:
 
   postgresql:
     enabled: true
+    image:
+      tag: "latest"
     auth:
       database: paperless
       username: paperless
@@ -87,6 +89,8 @@ paperless-ngx:
 
   redis:
     enabled: true
+    image:
+      tag: "latest"
     architecture: standalone
     auth:
       enabled: false
