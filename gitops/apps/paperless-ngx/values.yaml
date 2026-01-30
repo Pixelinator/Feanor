@@ -93,7 +93,8 @@ paperless-ngx:
       tag: "latest"
     architecture: standalone
     auth:
-      enabled: false
+      enabled: true
+      password: "paperless"
     master:
       persistence:
         enabled: true
