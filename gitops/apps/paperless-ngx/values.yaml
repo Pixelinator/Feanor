@@ -23,7 +23,7 @@ paperless-ngx:
       enabled: true
       ingressClassName: "traefik"
       annotations:
-        cert-manager.io/cluster-issuer: "letsencrypt-prod"
+        cert-manager.io/cluster-issuer: "letsencrypt-production"
       hosts:
         - host: paperless.eldamar.dev
           paths:
