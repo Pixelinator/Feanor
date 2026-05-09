@@ -2,7 +2,7 @@ vaultwarden:
   env:
     TZ: Europe/Berlin
     DOMAIN: https://vaultwarden.eldamar.dev
-    SIGNUPS_ALLOWED: "false"
+    SIGNUPS_ALLOWED: "true"
     # To enable the admin panel, create a SealedSecret named 'vaultwarden-admin'
     # in the vaultwarden namespace with key 'ADMIN_TOKEN' set to a bcrypt hash:
     #
