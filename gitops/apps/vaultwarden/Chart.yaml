@@ -1,0 +1,7 @@
+apiVersion: v2
+name: vaultwarden
+version: 0.1.0
+dependencies:
+  - name: vaultwarden
+    version: "0.16.1"
+    repository: "https://charts.gabe565.com"

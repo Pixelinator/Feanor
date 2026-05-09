@@ -131,6 +131,9 @@ data:
                   - title: Paperless-NGX
                     url: https://paperless.eldamar.dev/
                     icon: mdi:file-document-multiple
+                  - title: Vaultwarden
+                    url: https://vaultwarden.eldamar.dev/
+                    icon: si:bitwarden
 
               - type: releases
                 cache: 1d
