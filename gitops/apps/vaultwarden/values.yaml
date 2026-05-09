@@ -2,20 +2,17 @@ vaultwarden:
   env:
     TZ: Europe/Berlin
     DOMAIN: https://vaultwarden.eldamar.dev
-    SIGNUPS_ALLOWED: "true"
-    # To enable the admin panel, create a SealedSecret named 'vaultwarden-admin'
-    # in the vaultwarden namespace with key 'ADMIN_TOKEN' set to a bcrypt hash:
-    #
-    #   echo -n "YOUR_PASSWORD" | htpasswd -iBnBC 10 "" | tr -d ':\n'
-    #
-    # Then create and seal the secret:
-    #   kubectl create secret generic vaultwarden-admin \
-    #     --namespace vaultwarden \
-    #     --from-literal=ADMIN_TOKEN='$2y$10$...' \
-    #     --dry-run=client -o yaml | kubeseal --format yaml \
-    #     > gitops/apps/vaultwarden/templates/01-admin-sealed-secret.yaml
-    #
-    # Then uncomment below:
+    SIGNUPS_ALLOWED: "false"
+    # To enable the admin panel:
+    # 1. Generate a hash:
+    #      kubectl exec -n vaultwarden deploy/vaultwarden -- /vaultwarden hash --preset owasp
+    # 2. Seal the secret:
+    #      kubectl create secret generic vaultwarden-admin \
+    #        --namespace vaultwarden \
+    #        --from-literal=ADMIN_TOKEN='<paste-hash>' \
+    #        --dry-run=client -o yaml | kubeseal --format yaml \
+    #        > gitops/apps/vaultwarden/templates/01-admin-sealed-secret.yaml
+    # 3. Uncomment below and commit both files.
     # ADMIN_TOKEN:
     #   valueFrom:
     #     secretKeyRef:
