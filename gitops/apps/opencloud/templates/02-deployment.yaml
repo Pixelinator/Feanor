@@ -41,45 +41,16 @@ spec:
               value: "groups"
             - name: OC_LOG_LEVEL
               value: {{ .Values.logLevel | quote }}
-            - name: OC_JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: opencloud-secrets
-                  key: jwt_secret
-            - name: OC_TRANSFER_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: opencloud-secrets
-                  key: transfer_secret
-            - name: OC_MACHINE_AUTH_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: opencloud-secrets
-                  key: machine_auth_api_key
-            - name: OC_SYSTEM_USER_ID
-              valueFrom:
-                secretKeyRef:
-                  name: opencloud-secrets
-                  key: system_user_id
-            - name: OC_SYSTEM_USER_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: opencloud-secrets
-                  key: system_user_api_key
-            - name: OC_ADMIN_USER_ID
-              valueFrom:
-                secretKeyRef:
-                  name: opencloud-secrets
-                  key: admin_user_id
-            - name: GRAPH_APPLICATION_ID
-              valueFrom:
-                secretKeyRef:
-                  name: opencloud-secrets
-                  key: graph_application_id
           volumeMounts:
             - name: data
               mountPath: /var/lib/opencloud
+            - name: config
+              mountPath: /etc/opencloud/opencloud.yaml
+              subPath: opencloud.yaml
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: opencloud-data
+        - name: config
+          secret:
+            secretName: opencloud-config
