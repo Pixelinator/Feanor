@@ -1,0 +1,39 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: argocd-server-tls
+  namespace: argocd
+spec:
+  secretName: argocd-server-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  dnsNames:
+    - argocd.eldamar.dev
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: argocd-server
+  namespace: argocd
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    # gRPC (CLI) — matched first at higher priority
+    - kind: Rule
+      match: Host(`argocd.eldamar.dev`) && Header(`Content-Type`, `application/grpc`)
+      priority: 11
+      services:
+        - name: argocd-server
+          port: 80
+          scheme: h2c
+    # HTTP (UI)
+    - kind: Rule
+      match: Host(`argocd.eldamar.dev`)
+      priority: 10
+      services:
+        - name: argocd-server
+          port: 80
+  tls:
+    secretName: argocd-server-tls
