@@ -33,8 +33,8 @@ spec:
               value: {{ .Values.oidc.issuer | quote }}
             - name: WEB_OIDC_CLIENT_ID
               value: {{ .Values.oidc.clientId | quote }}
-            - name: PROXY_OIDC_REWRITE_WELLKNOWN
-              value: "true"
+            - name: WEB_OIDC_AUTHORITY
+              value: {{ .Values.oidc.issuer | quote }}
             - name: PROXY_AUTOPROVISION_ACCOUNTS
               value: "true"
             - name: PROXY_ROLE_ASSIGNMENT_DRIVER
