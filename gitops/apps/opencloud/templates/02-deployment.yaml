@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opencloud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opencloud
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: opencloud
+    spec:
+      containers:
+        - name: opencloud
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: OC_URL
+              value: "https://{{ .Values.ingress.host }}"
+            - name: PROXY_HTTP_ADDR
+              value: "0.0.0.0:{{ .Values.service.port }}"
+            - name: PROXY_TLS
+              value: "false"
+            - name: OC_EXCLUDE_RUN_SERVICES
+              value: "idp"
+            - name: PROXY_OIDC_ISSUER
+              value: {{ .Values.oidc.issuer | quote }}
+            - name: WEB_OIDC_CLIENT_ID
+              value: {{ .Values.oidc.clientId | quote }}
+            - name: PROXY_AUTOPROVISION_ACCOUNTS
+              value: "true"
+            - name: PROXY_ROLE_ASSIGNMENT_DRIVER
+              value: "oidc"
+            - name: PROXY_ROLE_ASSIGNMENT_OIDC_CLAIM
+              value: "groups"
+            - name: OC_LOG_LEVEL
+              value: {{ .Values.logLevel | quote }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/opencloud
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: opencloud-data
