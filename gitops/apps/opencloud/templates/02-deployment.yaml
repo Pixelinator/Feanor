@@ -41,6 +41,21 @@ spec:
               value: "groups"
             - name: OC_LOG_LEVEL
               value: {{ .Values.logLevel | quote }}
+            - name: OC_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: opencloud-secrets
+                  key: jwt_secret
+            - name: OC_TRANSFER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: opencloud-secrets
+                  key: transfer_secret
+            - name: OC_MACHINE_AUTH_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: opencloud-secrets
+                  key: machine_auth_api_key
           volumeMounts:
             - name: data
               mountPath: /var/lib/opencloud
