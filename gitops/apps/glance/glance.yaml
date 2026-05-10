@@ -116,6 +116,9 @@ data:
                 cache: 1m
                 title: Services
                 sites:
+                  - title: ArgoCD
+                    url: https://argocd.eldamar.dev/
+                    icon: si:argo
                   - title: Authentik
                     url: https://authentik.eldamar.dev/
                     icon: si:authentik
