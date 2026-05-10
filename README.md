@@ -13,6 +13,7 @@ Forging and orchestrating my homelab realms with NixOS and k3s — fully GitOps-
 Feanor is a declarative, GitOps-managed homelab infrastructure built on:
 
 - **NixOS** - Reproducible system configuration
+- **deploy-rs** - Atomic remote NixOS deployments with automatic rollback
 - **k3s** - Lightweight Kubernetes distribution
 - **ArgoCD** - GitOps continuous delivery
 - **Helm** - Kubernetes package management
@@ -52,6 +53,8 @@ All infrastructure and applications are defined as code, versioned in Git, and a
 │              │    │ • Jellyfin      │
 │              │    │ • Home Assistant│
 │              │    │ • Glance        │
+│              │    │ • Paperless-ngx │
+│              │    │ • Vaultwarden   │
 └──────────────┘    └─────────────────┘
 ```
 
@@ -61,13 +64,17 @@ All infrastructure and applications are defined as code, versioned in Git, and a
 
 ```
 .
-├── flake.nix                          # Nix flake for system configuration
-├── flake.lock                         # Locked dependency versions
+├── host.nix                           # ✏️  YOUR machine: hostname, IP, username, SSH key
+├── host.example.nix                   # Template — copy to host.nix and fill in your values
 ├── nixos/
-│   └── configuration.nix              # NixOS system configuration
+│   ├── hardware.nix                   # ✏️  YOUR hardware: disks, boot loader, kernel modules
+│   └── configuration.nix              # Generic NixOS config (no machine-specific values)
+├── flake.nix                          # Nix flake — wires host.nix, NixOS, and deploy-rs
+├── flake.lock                         # Locked dependency versions
 └── gitops/
-    ├── root-app-of-apps.yaml         # ArgoCD root application
+    ├── root-app-of-apps.yaml          # ArgoCD root application
     └── apps/                          # Application definitions
+        ├── argocd/                    # ArgoCD (self-managed)
         ├── authentik/                 # Identity provider
         ├── cert-manager/              # TLS certificate management
         ├── forgejo/                   # Self-hosted Git service
@@ -75,8 +82,12 @@ All infrastructure and applications are defined as code, versioned in Git, and a
         ├── glance/                    # Dashboard
         ├── home-assistant/            # Home automation
         ├── jellyfin/                  # Media server
-        └── postgres-operator/         # PostgreSQL operator
+        ├── paperless-ngx/             # Document management
+        ├── postgres-operator/         # PostgreSQL operator
+        └── vaultwarden/               # Password manager
 ```
+
+The ✏️ files are the only ones you need to change to adapt this repo to your own machine.
 
 ---
 
@@ -86,6 +97,7 @@ All infrastructure and applications are defined as code, versioned in Git, and a
 
 | Service               | Description                                             | Status      |
 | --------------------- | ------------------------------------------------------- | ----------- |
+| **ArgoCD**            | GitOps continuous delivery (self-managed)               | ✅ Deployed |
 | **cert-manager**      | Automated TLS certificate management with Let's Encrypt | ✅ Deployed |
 | **postgres-operator** | PostgreSQL operator for managed databases               | ✅ Deployed |
 
@@ -99,6 +111,8 @@ All infrastructure and applications are defined as code, versioned in Git, and a
 | **Jellyfin**       | Open-source media server                     | ✅ Deployed |
 | **Home Assistant** | Home automation platform                     | ✅ Deployed |
 | **Glance**         | Personal dashboard                           | ✅ Deployed |
+| **Paperless-ngx**  | Document management and archiving            | ✅ Deployed |
+| **Vaultwarden**    | Self-hosted Bitwarden-compatible password manager | ✅ Deployed |
 
 ---
 
@@ -106,55 +120,74 @@ All infrastructure and applications are defined as code, versioned in Git, and a
 
 ### Prerequisites
 
-- NixOS system
-- Basic understanding of Nix, Kubernetes, and GitOps concepts
-- Access to the host machine
+- A machine running (or being installed with) NixOS
+- Nix with flakes enabled on the machine you deploy **from**
+- An SSH key pair — deploy-rs authenticates with your public key, no password needed
 
-### Initial Setup
+### 1. Configure your machine
 
-1. **Clone the repository:**
+Copy the example host config and fill in your values:
 
-   ```bash
-   git clone https://github.com/Pixelinator/Feanor.git
-   cd Feanor
-   ```
+```bash
+cp host.example.nix host.nix
+$EDITOR host.nix
+```
 
-2. **Apply NixOS configuration:**
+Then replace `nixos/hardware.nix` with your machine's hardware config. The easiest way is to boot a NixOS installer and run:
 
-   ```bash
-   sudo nixos-rebuild switch --flake .#
-   ```
+```bash
+nixos-generate-config --no-filesystems
+```
 
-3. **Verify k3s is running:**
+Copy the output into `nixos/hardware.nix` and add your `fileSystems` entries manually.
 
-   ```bash
-   sudo k3s kubectl get nodes
-   ```
+### 2. Initial NixOS installation
 
-4. **Install ArgoCD:**
+On first install, apply the config locally from the target machine:
 
-   ```bash
-   sudo k3s kubectl create namespace argocd
-   sudo k3s kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-   ```
+```bash
+sudo nixos-rebuild switch --flake .#
+```
 
-5. **Deploy the App of Apps:**
+Make sure your SSH public key is in `host.nix` before this step — deploy-rs needs it for all subsequent deployments.
 
-   ```bash
-   sudo k3s kubectl apply -f gitops/root-app-of-apps.yaml
-   ```
+### 3. Deploy remotely with deploy-rs
 
-6. **Access ArgoCD UI:**
+After the initial install, all future deployments run from your local machine:
 
-   ```bash
-   # Get initial admin password
-   sudo k3s kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```bash
+deploy .#
+```
 
-   # Port forward to access UI
-   sudo k3s kubectl port-forward svc/argocd-server -n argocd 8080:443
-   ```
+deploy-rs SSHs into the machine, builds the new system (on the remote), and activates it. If the machine stops responding within the health-check window, it automatically rolls back to the previous generation.
 
-   Navigate to `https://localhost:8080` and login with username `admin`.
+### 4. Bootstrap ArgoCD
+
+Once NixOS is running and k3s is up:
+
+```bash
+# Verify k3s is running
+sudo k3s kubectl get nodes
+
+# Install ArgoCD
+sudo k3s kubectl create namespace argocd
+sudo k3s kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# Deploy the App of Apps (ArgoCD takes it from here)
+sudo k3s kubectl apply -f gitops/root-app-of-apps.yaml
+```
+
+### 5. Access ArgoCD UI
+
+```bash
+# Get initial admin password
+sudo k3s kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+# Port forward to access UI
+sudo k3s kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
+Navigate to `https://localhost:8080` and log in with username `admin`.
 
 ---
 
@@ -163,18 +196,23 @@ All infrastructure and applications are defined as code, versioned in Git, and a
 - **Secrets Management:** Sealed Secrets are used for sensitive data (e.g., Porkbun API credentials in cert-manager)
 - **TLS Certificates:** Automated via cert-manager with Let's Encrypt (staging and production issuers)
 - **Authentication:** Authentik provides centralized SSO/OAuth2 for applications
-- **Network Policies:** Configure according to your security requirements
+- **No plain secrets in repo:** `host.nix` contains only non-sensitive metadata (hostname, IP, username, public SSH key). All secrets are encrypted with `kubeseal`.
 
 ---
 
 ## 🔄 GitOps Workflow
 
-All changes to infrastructure and applications follow this workflow:
+NixOS changes (OS config, packages):
 
-1. **Modify configuration** in this Git repository
-2. **Commit and push** changes to the main branch
-3. **ArgoCD automatically syncs** changes to the cluster
-4. **Monitor deployment** status in ArgoCD UI
+```
+Edit nixos/ or host.nix  →  deploy .#  →  machine updated atomically
+```
+
+Kubernetes app changes:
+
+```
+Edit gitops/apps/*  →  git push  →  ArgoCD auto-syncs  →  cluster updated
+```
 
 ```mermaid
 graph LR
@@ -188,89 +226,52 @@ graph LR
 
 ## 📝 Adding New Applications
 
-To add a new application:
+1. Create `gitops/apps/<app-name>/` — the directory name becomes the ArgoCD app name and namespace.
 
-1. **Create application directory:**
+2. Choose a pattern:
+   - **Helm wrapper:** `Chart.yaml` (upstream dependency) + `values.yaml`
+   - **Plain YAML:** single manifest file with all resources
 
-   ```bash
-   mkdir -p gitops/apps/my-app
-   ```
+3. Commit and push — ArgoCD detects the new directory and deploys automatically.
 
-2. **Create Helm chart structure:**
-
-   ```bash
-   cd gitops/apps/my-app
-   cat > Chart.yaml <<EOF
-   apiVersion: v2
-   name: my-app
-   version: 1.0.0
-   dependencies:
-     - name: upstream-chart
-       version: "x.x.x"
-       repository: https://charts.example.com
-   EOF
-
-   cat > values.yaml <<EOF
-   # Your custom values here
-   EOF
-   ```
-
-3. **Add templates if needed:**
-
-   ```bash
-   mkdir templates
-   # Add custom Kubernetes manifests
-   ```
-
-4. **Create ArgoCD Application:**
-   Add entry to `root-app-of-apps.yaml` or create a separate Application manifest.
-
-5. **Commit and push:**
-   ```bash
-   git add gitops/apps/my-app
-   git commit -m "Add my-app"
-   git push
-   ```
-
-ArgoCD will automatically detect and deploy the new application.
+See `gitops/apps/authentik/` for a Helm wrapper example with a managed Postgres database.
 
 ---
 
 ## 🔧 Maintenance
 
-### Updating Applications
-
-Applications are updated by modifying their respective Helm chart versions or values:
+### Updating the NixOS system
 
 ```bash
-# Edit the Chart.yaml or values.yaml
-vim gitops/apps/jellyfin/values.yaml
+# Update flake inputs (bumps nixpkgs, deploy-rs, etc.)
+nix flake update
 
-# Commit and push
-git add gitops/apps/jellyfin/values.yaml
-git commit -m "Update Jellyfin configuration"
-git push
+# Deploy the updated system
+deploy .#
 ```
 
-### Viewing Logs
+### Updating Kubernetes applications
 
 ```bash
-# View pod logs
-sudo k3s kubectl logs -n <namespace> <pod-name>
+# Edit the chart version or values
+$EDITOR gitops/apps/jellyfin/values.yaml
 
-# View ArgoCD application status
+git commit -am "Update Jellyfin configuration"
+git push
+# ArgoCD picks it up automatically
+```
+
+### Viewing logs
+
+```bash
+sudo k3s kubectl logs -n <namespace> <pod-name>
 sudo k3s kubectl get applications -n argocd
 ```
 
-### Manual Sync
-
-If automatic sync is disabled or you want to force a sync:
+### Manual ArgoCD sync
 
 ```bash
-# Via CLI
 argocd app sync <app-name>
-
-# Or use ArgoCD UI
 ```
 
 ---
@@ -279,39 +280,33 @@ argocd app sync <app-name>
 
 ### ArgoCD app shows "OutOfSync"
 
-Check the ArgoCD UI for detailed diff and error messages. Common causes:
+Check the ArgoCD UI for the detailed diff. Common causes: Kubernetes API version mismatch, resource conflicts, invalid YAML.
 
-- Kubernetes API version incompatibility
-- Resource conflicts
-- Invalid YAML syntax
-
-### Pod stuck in "Pending" state
+### Pod stuck in "Pending"
 
 ```bash
 sudo k3s kubectl describe pod -n <namespace> <pod-name>
 ```
 
-Common issues:
-
-- Insufficient resources
-- PVC not bound
-- Image pull errors
+Common causes: insufficient resources, PVC not bound, image pull errors.
 
 ### Certificate issues
 
 ```bash
-# Check cert-manager logs
 sudo k3s kubectl logs -n cert-manager deployment/cert-manager
-
-# Check certificate status
 sudo k3s kubectl get certificate -A
 ```
+
+### deploy-rs rollback triggered
+
+deploy-rs rolls back automatically if the machine stops responding after activation. Check `journalctl -xe` on the machine for the activation failure reason.
 
 ---
 
 ## 📚 Resources
 
 - [NixOS Manual](https://nixos.org/manual/nixos/stable/)
+- [deploy-rs Documentation](https://github.com/serokell/deploy-rs)
 - [k3s Documentation](https://docs.k3s.io/)
 - [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
 - [Helm Documentation](https://helm.sh/docs/)
@@ -320,26 +315,10 @@ sudo k3s kubectl get certificate -A
 
 ## 🤝 Contributing
 
-This is a personal homelab project, but suggestions and improvements are welcome! Feel free to:
-
-- Open issues for bugs or feature requests
-- Submit pull requests
-- Share your own homelab setups inspired by this one
+This is a personal homelab project, but suggestions and improvements are welcome! Feel free to open issues, submit pull requests, or fork it as a starting point for your own homelab.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- The NixOS community for the amazing declarative system
-- ArgoCD team for excellent GitOps tooling
-- All open-source projects deployed in this homelab
-
----
-
-**Note:** This is a personal homelab environment. Configuration details like domain names, API keys, and other sensitive information have been kept generic or are managed via Sealed Secrets.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
