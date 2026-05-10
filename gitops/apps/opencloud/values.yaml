@@ -1,0 +1,36 @@
+image:
+  repository: ghcr.io/opencloud-eu/opencloud
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 9200
+
+persistence:
+  enabled: true
+  size: 50Gi
+
+# External OIDC via Authentik.
+# Before deploying: create an OAuth2/OIDC Provider in Authentik (Client type:
+# Public, client ID matching oidc.clientId), add redirect URIs
+# https://<ingress.host>/oidc-callback and
+# https://<ingress.host>/oidc-silent-redirect.html, then create an Application
+# with slug matching the provider path in oidc.issuer.
+# Create a group named oidc.adminGroup in Authentik and assign it to your user
+# to gain admin rights in OpenCloud.
+oidc:
+  issuer: "https://authentik.eldamar.dev/application/o/opencloud/"
+  clientId: "opencloud"
+  adminGroup: "ocisAdmin"
+
+logLevel: "warn"
+
+ingress:
+  enabled: true
+  ingressClassName: "traefik"
+  host: "cloud.eldamar.dev"
+  certManager: true
+  tls:
+    - secretName: opencloud-tls
+      hosts:
+        - cloud.eldamar.dev

@@ -137,6 +137,9 @@ data:
                   - title: Vaultwarden
                     url: https://vaultwarden.eldamar.dev/
                     icon: si:bitwarden
+                  - title: OpenCloud
+                    url: https://cloud.eldamar.dev/
+                    icon: mdi:cloud
 
               - type: releases
                 cache: 1d
