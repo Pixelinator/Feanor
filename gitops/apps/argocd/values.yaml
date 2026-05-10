@@ -1,0 +1,18 @@
+argo-cd:
+  configs:
+    params:
+      server.insecure: "true"    # Traefik terminates TLS; ArgoCD serves plain HTTP to the ingress
+
+  server:
+    ingress:
+      enabled: false             # Using Traefik IngressRoute CRD in templates/ instead
+
+  # Single-instance — no HA needed for homelab
+  redis-ha:
+    enabled: false
+  controller:
+    replicas: 1
+  repoServer:
+    replicas: 1
+  applicationSet:
+    replicas: 1
