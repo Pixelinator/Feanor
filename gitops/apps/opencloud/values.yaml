@@ -13,7 +13,7 @@ persistence:
 # External OIDC via Authentik.
 # Before deploying: create an OAuth2/OIDC Provider in Authentik (Client type:
 # Public, client ID matching oidc.clientId), add redirect URIs
-# https://<ingress.host>/oidc-callback and
+# https://<ingress.host>/web-oidc-callback and
 # https://<ingress.host>/oidc-silent-redirect.html, then create an Application
 # with slug matching the provider path in oidc.issuer.
 # Create a group named oidc.adminGroup in Authentik and assign it to your user
