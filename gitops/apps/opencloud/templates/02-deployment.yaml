@@ -41,6 +41,8 @@ spec:
               value: "oidc"
             - name: PROXY_ROLE_ASSIGNMENT_OIDC_CLAIM
               value: "groups"
+            - name: WEB_OIDC_SCOPES
+              value: "openid profile email groups"
             - name: OC_LOG_LEVEL
               value: {{ .Values.logLevel | quote }}
           volumeMounts:
