@@ -1,0 +1,4 @@
+apiVersion: v2
+name: foundryvtt
+version: 0.1.0
+description: FoundryVTT deployment using felddy/foundryvtt-docker
