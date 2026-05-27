@@ -11,6 +11,9 @@ spec:
       # Secret name for the ACME account private key
       name: letsencrypt-production-account-key
     solvers:
+      - http01:
+          ingress:
+            class: traefik
       - dns01:
           cloudflare:
             email: forsterdominic2@gmail.com
