@@ -15,7 +15,11 @@ data:
   # ConfigMap as files. Glance expects /app/config/glance.yml based on docs.
   # We'll name the key exactly 'glance.yml'.
   glance.yml: | # Start of the file content (literal block)
-    # >>> BEGIN your Glance app configuration (copied from glance-config.yml) <<<
+    # >>> BEGIN your Glance app configuration <<<
+    branding:
+      app-name: "Feanor"
+      logo-text: "⚒️"
+      hide-footer: true
     pages:
       - name: Home
         # Optionally, if you only have a single page you can hide the desktop navigation for a cleaner look
@@ -33,6 +37,10 @@ data:
 
           - size: full
             widgets:
+              - type: iframe
+                source: https://home-assistant.eldamar.dev/lovelace/0
+                height: 400
+
               - type: videos
                 channels:
                   - UCXuqSBlHAE6Xw-yeJA0Tunw # Linus Tech Tips
@@ -140,17 +148,22 @@ data:
                   - title: OpenCloud
                     url: https://cloud.eldamar.dev/
                     icon: mdi:cloud
+                  - title: FoundryVTT
+                    url: https://foundry.eldamar.dev/
+                    icon: si:foundryvirtualtabletop
 
               - type: releases
                 cache: 1d
-                # Without authentication the Github API allows for up to 60 requests per hour. You can create a
-                # read-only token from your Github account settings and use it here to increase the limit.
-                # token: ...
                 repositories:
                   - glanceapp/glance
-                  - go-gitea/gitea
-                  - immich-app/immich
-                  - syncthing/syncthing
+                  - argoproj/argo-cd
+                  - goauthentik/authentik
+                  - jellyfin/jellyfin
+                  - paperless-ngx/paperless-ngx
+                  - dani-garcia/vaultwarden
+                  - bitnami-labs/sealed-secrets
+                  - cert-manager/cert-manager
+                  - home-assistant/core
     # >>> END your Glance app configuration <<<
 ---
 # ------------------------------- DEPLOYMENT ---------------------------------
