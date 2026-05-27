@@ -41,6 +41,10 @@ spec:
               value: "oidc"
             - name: PROXY_ROLE_ASSIGNMENT_OIDC_CLAIM
               value: "groups"
+            - name: PROXY_ROLE_ASSIGNMENT_ADMIN_ROLE
+              value: "ocisAdmin"
+            - name: PROXY_ROLE_ASSIGNMENT_USER_ROLE
+              value: "ocisUser"
             - name: WEB_OIDC_SCOPE
               value: "openid profile email groups"
             - name: OC_LOG_LEVEL
