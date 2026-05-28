@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authentik-blueprints-base
+  namespace: authentik
+data:
+  01-groups.yaml: |
+    version: 1
+    metadata:
+      name: homelab-groups
+    entries:
+      - model: authentik_core.group
+        state: present
+        identifiers:
+          name: authentik Admins
+        attrs:
+          is_superuser: true
+
+      - model: authentik_core.group
+        state: present
+        identifiers:
+          name: admin
+        attrs:
+          is_superuser: false
+
+      - model: authentik_core.group
+        state: present
+        identifiers:
+          name: Forgejo Users
+        attrs:
+          is_superuser: false
+
+      - model: authentik_core.group
+        state: present
+        identifiers:
+          name: Forgejo Admins
+        attrs:
+          is_superuser: false
+          parent: !Find [authentik_core.group, [name, Forgejo Users]]
+
+      - model: authentik_core.group
+        state: present
+        identifiers:
+          name: opencloudAdmin
+        attrs:
+          is_superuser: false
+
+  02-property-mappings.yaml: |
+    version: 1
+    metadata:
+      name: homelab-property-mappings
+    entries:
+      - model: authentik_providers_oauth2.scopemapping
+        state: present
+        identifiers:
+          managed: homelab.property-mapping.opencloud-groups
+        attrs:
+          name: opencloud-groups
+          scope_name: groups
+          expression: "return list(request.user.ak_groups.values_list(\"name\", flat=True))"
