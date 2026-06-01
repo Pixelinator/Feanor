@@ -1,0 +1,112 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dyndns
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: porkbun-api-credentials
+  namespace: dyndns
+spec:
+  encryptedData:
+    api-key: AgB+jwx3GcGWZBR7TrPG5YAK2FtMyokHpbbAtBERhnXhVbygPhLZT4rAc2xJlvLvbq+pZrf+CsY3X+KlRJaSW7KGA8SBeeIBUxVUfyJ1k+ax3EmDf7nhPDuVjGrS4znrhpbsmQ0vUGfUR5WhJbYMpfTc60hoAu+AZtHMKv+vd7fIDLQUGhkoVpkBqMkuQTzxDIiEKF/FJ9/nbyCqTz7uqibwSamrm/6z9zVijNeJ+iFRsTmzc1LBNP4TBTJ1h5PEwLcfmvsogSMGuZm3MF4HI49EePZW2vC/JzMisYhyRHC8dxHn03j8tN9VAgIUKquzU9AI47Gjbh9d1+zq0e0JkhTmSF2X47AwgF2+WNcF2Ig+H0P1Np5Kj78erkqNF5xujdhb80RgQXxvLMyEMUSRmLGsJI9XcfM+we+B3xBsHimn+jSH031xzM24P3MRgyDgAIYvx3lfBYNprZd3F4aEhPLSYFsh6qjDj3yeXq5G981JYfA65ASo3rsI28fqelWlfaHGjXOCkhV7wJoIBHEJvQZ9g/HKtDxAeJT4/dLi8ZEcaOToXL8Pw34pQd6z6tWD1Fb3zEsXuiDhLL4i2F013Oq/hZ5/MPKQ+OPCx2/RmRsz1MY8Js5SeWxYJ4KpegWwQuJNtH3L2pB8F6gUn/8oB+85I3nDM+MTnQfSLBGSlqlUrJe3QE9Rpm6trPtKefRS5Usu9DJN65hKUJU87P/g9Nnm2wTmfNa4tsDFCI6yd2a/SOGdPnx731zpBut0AWuBOs3rv/E6qUGM7b9jZWa7Fq6yGw7uLA==
+    secret-key: AgCu0ER4zTiudwgLl4Vngpb+mrdkAE1pvDhA3OdE2H70pVE8FXxNsGPv6gTBErlwuypY3mCXvZde7uVZ+rZhYHgcDtA01mZ3ftzfAwaABmWZBcnfKVrIfb1ZStR+uFQqr4LwmYuHxaQbao7ob3eBjY0bKvEK24/kL+7EitqhtRzywIbwUU9HWQapGR+1J1imK3Nyt5xg+XyTCB106pLfX2xRb/53w1zhGj1o0RGx+HERVtjA1y5ztOhfs2Z2wbwWD0FcmRFwAecUjHsqAAPZxqzdIiiYEwtx7DpC4hnpEkh5LvF8xUjriTXTAF65sdHpKEDeFArSKQxpuBuzsjfJDMUgA2g+BPz3SX/CbJE8aJD5+wYuiGi+0faNCZmxSjmuswaPZXYp3dReztnQZDKKh0y+61yV8hcAanYRA2HXJh7lo3ZqkWbUQgIe180rYKCrSI5eIAdqIgFPP031gJVN7L2aEomoi4r4s6gDSf0xuZdgMOXx085gNyi5qGK3KaMo3ZH5jhft2/CGQn4hDf0DLcgtqqZNwxteDwxGhyXymbqQQa+duzyEM4P9qcviy77dryKzzL09usHw6FYCe5HzovagcQEC80LwSVs9xrZlxcl4lTStBn6HsTP4DTBq0RMy6TwbnuCyVAE3vvvuBE8KLTIn2L35h1qVTuKmtR4Q0vNtjpl+q2y0rrk6vam7PuMzqLV6esGdylXw5z0zJ491TxwhoouBk1shPRy/3j5kyO5gng4hvKY3M/vcLq9wJeqaLTP4SCtnAYMAdpIX/cwWzDyGAkOq4Q==
+  template:
+    metadata:
+      creationTimestamp: null
+      name: porkbun-api-credentials
+      namespace: dyndns
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dyndns-script
+  namespace: dyndns
+data:
+  update.sh: |
+    #!/bin/sh
+    set -e
+
+    DOMAIN="eldamar.dev"
+    API_KEY="${PORKBUN_API_KEY}"
+    SECRET_KEY="${PORKBUN_SECRET_KEY}"
+
+    # Get current public IP
+    CURRENT_IP=$(curl -sf https://api.ipify.org)
+    if [ -z "$CURRENT_IP" ]; then
+      echo "ERROR: Could not determine public IP"
+      exit 1
+    fi
+
+    echo "Current public IP: $CURRENT_IP"
+
+    # Get current DNS records from Porkbun
+    RESPONSE=$(curl -sf -X POST "https://api.porkbun.com/api/json/v3/dns/retrieveByNameType/${DOMAIN}/A/*" \
+      -H "Content-Type: application/json" \
+      -d "{\"apikey\": \"${API_KEY}\", \"secretapikey\": \"${SECRET_KEY}\"}")
+
+    DNS_IP=$(echo "$RESPONSE" | grep -o '"content":"[^"]*"' | head -1 | cut -d'"' -f4)
+    echo "Current DNS IP: $DNS_IP"
+
+    if [ "$CURRENT_IP" = "$DNS_IP" ]; then
+      echo "IP unchanged, nothing to do"
+      exit 0
+    fi
+
+    echo "IP changed! Updating DNS records..."
+
+    # Get record ID for wildcard
+    RECORD_ID=$(echo "$RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+
+    # Update wildcard record
+    curl -sf -X POST "https://api.porkbun.com/api/json/v3/dns/editByNameType/${DOMAIN}/A/*" \
+      -H "Content-Type: application/json" \
+      -d "{\"apikey\": \"${API_KEY}\", \"secretapikey\": \"${SECRET_KEY}\", \"content\": \"${CURRENT_IP}\", \"ttl\": \"600\"}"
+
+    # Update root record
+    curl -sf -X POST "https://api.porkbun.com/api/json/v3/dns/editByNameType/${DOMAIN}/A/" \
+      -H "Content-Type: application/json" \
+      -d "{\"apikey\": \"${API_KEY}\", \"secretapikey\": \"${SECRET_KEY}\", \"content\": \"${CURRENT_IP}\", \"ttl\": \"600\"}"
+
+    echo "DNS updated successfully: $DNS_IP -> $CURRENT_IP"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dyndns
+  namespace: dyndns
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: dyndns
+              image: curlimages/curl:latest
+              command: ["/bin/sh", "/scripts/update.sh"]
+              env:
+                - name: PORKBUN_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: porkbun-api-credentials
+                      key: api-key
+                - name: PORKBUN_SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: porkbun-api-credentials
+                      key: secret-key
+              volumeMounts:
+                - name: script
+                  mountPath: /scripts
+          volumes:
+            - name: script
+              configMap:
+                name: dyndns-script
+                defaultMode: 0755
