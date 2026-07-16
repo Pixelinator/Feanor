@@ -229,6 +229,7 @@ authentik:
       - authentik-blueprints-forgejo
       - authentik-blueprints-opencloud
       - authentik-blueprints-home-assistant
+      - authentik-blueprints-esphome
     # -- List of secrets to mount blueprints from.
     # Only keys in the secret ending with `.yaml` will be discovered and applied.
     secrets: []

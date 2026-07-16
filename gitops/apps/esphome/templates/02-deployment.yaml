@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: esphome
+spec:
+  replicas: 1
+  # RWO PVC shared by init + app + sidecar: never run two pods against it
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: esphome
+  template:
+    metadata:
+      labels:
+        app: esphome
+    spec:
+      initContainers:
+        - name: git-sync-init
+          image: "{{ .Values.gitSync.image.repository }}:{{ .Values.gitSync.image.tag }}"
+          args:
+            - --repo={{ .Values.gitSync.repository }}
+            - --depth=1
+            - --one-time
+            - --root=/config
+            - --link=current
+          env:
+            - name: GITSYNC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: esphome-git-credentials
+                  key: username
+            - name: GITSYNC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: esphome-git-credentials
+                  key: token
+          volumeMounts:
+            - name: config
+              mountPath: /config
+
+      containers:
+        - name: esphome
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          # git-sync creates /config/current -> /config/<sha>; point ESPHome at the symlink target.
+          # NOTE: the .esphome build cache lives inside the worktree and is wiped on
+          # every new commit (full recompile). Before scaling past a few devices, move
+          # builds out of the worktree via per-device `esphome: build_path:`.
+          command: ["esphome", "dashboard", "/config/current"]
+          env:
+            # Online/offline detection: mDNS does not cross the pod network or VLANs.
+            - name: ESPHOME_DASHBOARD_USE_PING
+              value: "true"
+            # Device secrets -- referenced as !env_var in device YAML.
+            # secrets.yaml must NEVER be committed to esphome-config.
+            - name: WIFI_SSID
+              valueFrom:
+                secretKeyRef:
+                  name: esphome-secrets
+                  key: wifi_ssid
+            - name: WIFI_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: esphome-secrets
+                  key: wifi_password
+            - name: API_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: esphome-secrets
+                  key: api_encryption_key
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          volumeMounts:
+            - name: config
+              mountPath: /config
+
+        - name: git-sync
+          image: "{{ .Values.gitSync.image.repository }}:{{ .Values.gitSync.image.tag }}"
+          args:
+            - --repo={{ .Values.gitSync.repository }}
+            - --depth=1
+            - --period={{ .Values.gitSync.period }}
+            - --root=/config
+            - --link=current
+          env:
+            - name: GITSYNC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: esphome-git-credentials
+                  key: username
+            - name: GITSYNC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: esphome-git-credentials
+                  key: token
+          volumeMounts:
+            - name: config
+              mountPath: /config
+
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: esphome-config
