@@ -7,7 +7,7 @@ spec:
     # Internal service URL: avoids hairpinning every auth subrequest through
     # Traefik/public DNS and keeps auth working if the public hostname is ever
     # proxied or geoblocked.
-    address: http://authentik-server.authentik.svc.cluster.local:9000/outpost.goauthentik.io/auth/traefik
+    address: http://authentik-server.authentik.svc.cluster.local:80/outpost.goauthentik.io/auth/traefik
     trustForwardHeader: true
     authResponseHeaders:
       - X-authentik-username
