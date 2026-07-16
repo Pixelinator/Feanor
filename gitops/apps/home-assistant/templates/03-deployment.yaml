@@ -40,16 +40,24 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-        # custom_components (hass-auth-header) and www (lovelace plugins like
-        # kiosk-mode, served at /local) live in the ha-config repo; HA only
-        # loads them from /config, so link them into the git checkout.
-        # Skips any path where a real directory already exists.
+        # custom_components (hass-auth-header) and www (/local assets) live in
+        # the ha-config repo. custom_components can be a symlink into the
+        # checkout (Python imports once at startup). www must be a REAL copy:
+        # HA's static handler resolves symlinks once at startup, and git-sync
+        # rotates worktrees on every commit -- a symlinked www 404s as soon as
+        # the pinned worktree is cleaned up. Consequence: new/changed files in
+        # www/ need a pod restart to be served.
         - name: link-git-dirs
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           command:
             - /bin/bash
             - -c
-            - 'for d in custom_components www; do { [ -e /config/$d ] && [ ! -L /config/$d ]; } || ln -sfn /config/git/current/$d /config/$d; done'
+            - >-
+              { [ -e /config/custom_components ] && [ ! -L /config/custom_components ]; }
+              || ln -sfn /config/git/current/custom_components /config/custom_components;
+              [ -L /config/www ] && rm /config/www;
+              mkdir -p /config/www;
+              cp -a /config/git/current/www/. /config/www/
           volumeMounts:
             - name: config
               mountPath: /config
