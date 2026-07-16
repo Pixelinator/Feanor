@@ -57,6 +57,13 @@ spec:
         - name: home-assistant
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            # HA imports custom_components from the git-sync checkout; without
+            # this Python drops root-owned __pycache__ into the worktrees,
+            # which git-sync (uid 65533) cannot delete -- cleanup jams and the
+            # sync loop stalls.
+            - name: PYTHONDONTWRITEBYTECODE
+              value: "1"
           ports:
             - containerPort: {{ .Values.service.port }}
           volumeMounts:
