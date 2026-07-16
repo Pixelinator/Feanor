@@ -4,16 +4,42 @@ metadata:
   name: {{ .Values.configMapName }}
 data:
   configuration.yaml: |
+    # Stock integration baseline (webhook, api, mobile_app, history, ...).
+    # The webhook-based reload automation depends on it.
+    default_config:
+
     homeassistant:
       time_zone: "Europe/Berlin"
       unit_system: metric
-    # add additional Home Assistant configuration here
+      # Git-managed config. /config/git/current is the git-sync checkout of
+      # the ha-config repo; these files MUST exist there or HA boots into
+      # safe mode. Seed the repo before pushing this app.
+      packages: !include_dir_named /config/git/current/packages
+
     http:
-        use_x_forwarded_for: true
-        trusted_proxies:
-          - 10.42.0.0/16
-          - 127.0.0.1
-          - ::1
+      # allow glance.eldamar.dev to embed HA in an iframe (drops the
+      # default X-Frame-Options: SAMEORIGIN clickjacking protection)
+      use_x_frame_options: false
+      use_x_forwarded_for: true
+      trusted_proxies:
+        - 10.42.0.0/16
+        - 127.0.0.1
+        - ::1
 
+    # Automations/scripts/scenes come from git — the HA UI editors for these
+    # are effectively read-only now (edits are overwritten on next sync).
+    automation: !include /config/git/current/automations.yaml
+    script: !include /config/git/current/scripts.yaml
+    scene: !include /config/git/current/scenes.yaml
 
-
+    # Default dashboard stays UI-editable (storage mode); the canonical
+    # dashboard is git-managed and shows up as a named YAML dashboard.
+    lovelace:
+      mode: storage
+      dashboards:
+        git-home:
+          mode: yaml
+          filename: git/current/lovelace/home.yaml
+          title: Home (Git)
+          icon: mdi:source-branch
+          show_in_sidebar: true

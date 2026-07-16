@@ -4,6 +4,9 @@ metadata:
   name: home-assistant
 spec:
   replicas: {{ .Values.replicaCount }}
+  # RWO PVC + SQLite recorder: never run two HA pods against the same /config
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: home-assistant
@@ -12,6 +15,31 @@ spec:
       labels:
         app: home-assistant
     spec:
+      initContainers:
+        # One-time clone so /config/git/current exists before HA parses
+        # configuration.yaml (its includes point into the checkout).
+        - name: git-sync-init
+          image: "{{ .Values.gitSync.image.repository }}:{{ .Values.gitSync.image.tag }}"
+          args:
+            - --repo={{ .Values.gitSync.repository }}
+            - --depth=1
+            - --one-time
+            - --root=/config/git
+            - --link=current
+          env:
+            - name: GITSYNC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: ha-git-credentials
+                  key: username
+            - name: GITSYNC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ha-git-credentials
+                  key: token
+          volumeMounts:
+            - name: config
+              mountPath: /config
       containers:
         - name: home-assistant
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -28,6 +56,33 @@ spec:
             - name: {{ .name }}
               mountPath: {{ .mountPath }}
             {{- end }}
+        - name: git-sync
+          image: "{{ .Values.gitSync.image.repository }}:{{ .Values.gitSync.image.tag }}"
+          args:
+            - --repo={{ .Values.gitSync.repository }}
+            - --depth=1
+            - --period={{ .Values.gitSync.period }}
+            - --root=/config/git
+            - --link=current
+            # On every new commit, POST the HA webhook; an automation in
+            # ha-config runs homeassistant.reload_all. No token needed —
+            # the webhook is local_only and pod-internal.
+            - --webhook-url=http://localhost:8123/api/webhook/git-sync-reload
+            - --webhook-method=POST
+          env:
+            - name: GITSYNC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: ha-git-credentials
+                  key: username
+            - name: GITSYNC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ha-git-credentials
+                  key: token
+          volumeMounts:
+            - name: config
+              mountPath: /config
       volumes:
         - name: config
           persistentVolumeClaim:
