@@ -2,8 +2,16 @@ replicaCount: 1
 
 image:
   repository: homeassistant/home-assistant
-  tag: "stable"
+  tag: "2026.7.2"  # current stable as of 2026-07-16; update deliberately via PR
   pullPolicy: IfNotPresent
+
+gitSync:
+  # URL of the ha-config repo on Forgejo
+  repository: https://forgejo.eldamar.dev/akadmin/ha-config
+  image:
+    repository: registry.k8s.io/git-sync/git-sync
+    tag: v4.4.2
+  period: 60s
 
 service:
   type: ClusterIP
