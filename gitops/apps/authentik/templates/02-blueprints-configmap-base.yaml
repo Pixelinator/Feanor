@@ -58,3 +58,18 @@ data:
           name: opencloud-groups
           scope_name: groups
           expression: "return list(request.user.ak_groups.values_list(\"name\", flat=True))"
+  90-outposts.yaml: |
+    version: 1
+    metadata:
+      name: homelab-outposts
+    entries:
+      # Central provider list for the embedded outpost. Blueprints SET this
+      # list (no append) -- every forward-auth proxy provider must be added
+      # HERE, never in per-app blueprints, or they clobber each other.
+      - model: authentik_outposts.outpost
+        state: present
+        identifiers:
+          managed: goauthentik.io/outposts/embedded
+        attrs:
+          providers:
+            - !Find [authentik_providers_proxy.proxyprovider, [name, Provider for home-assistant]]
