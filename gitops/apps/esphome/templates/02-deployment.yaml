@@ -44,10 +44,13 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           # git-sync creates /config/current -> /config/<sha>; point ESPHome at the symlink target.
+          # Keep the image entrypoint: since 2026.6 "dashboard" is mapped by
+          # /entrypoint.sh to the ESPHome Device Builder ("esphome dashboard"
+          # was removed).
           # NOTE: the .esphome build cache lives inside the worktree and is wiped on
           # every new commit (full recompile). Before scaling past a few devices, move
           # builds out of the worktree via per-device `esphome: build_path:`.
-          command: ["esphome", "dashboard", "/config/current"]
+          args: ["dashboard", "/config/current"]
           env:
             # Online/offline detection: mDNS does not cross the pod network or VLANs.
             - name: ESPHOME_DASHBOARD_USE_PING
