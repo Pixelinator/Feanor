@@ -40,6 +40,18 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
+        # custom_components (hass-auth-header) live in the ha-config repo;
+        # HA only loads them from /config/custom_components, so link it into
+        # the git checkout. Skips if a real directory already exists there.
+        - name: link-custom-components
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command:
+            - /bin/bash
+            - -c
+            - '{ [ -e /config/custom_components ] && [ ! -L /config/custom_components ]; } || ln -sfn /config/git/current/custom_components /config/custom_components'
+          volumeMounts:
+            - name: config
+              mountPath: /config
       containers:
         - name: home-assistant
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

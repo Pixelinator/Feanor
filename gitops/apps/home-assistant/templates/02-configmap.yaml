@@ -16,6 +16,12 @@ data:
       # safe mode. Seed the repo before pushing this app.
       packages: !include_dir_named /config/git/current/packages
 
+    # SSO: authentik forward-auth injects the username; hass-auth-header
+    # (custom component from the ha-config repo) logs that user in. The HA
+    # username must match the authentik username.
+    auth_header:
+      username_header: X-authentik-username
+
     http:
       # allow glance.eldamar.dev to embed HA in an iframe (drops the
       # default X-Frame-Options: SAMEORIGIN clickjacking protection)
