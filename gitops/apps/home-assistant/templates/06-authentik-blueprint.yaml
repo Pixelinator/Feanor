@@ -20,7 +20,7 @@ data:
         attrs:
           authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
           invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
-          mode: forward_auth_single
+          mode: forward_single
           external_host: https://home-assistant.eldamar.dev
           # Companion app, HA's own token endpoints, and static assets must
           # bypass authentik -- they authenticate against HA directly.
