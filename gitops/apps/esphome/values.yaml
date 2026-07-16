@@ -1,0 +1,26 @@
+image:
+  repository: ghcr.io/esphome/esphome
+  tag: "2026.7.0"  # current stable as of 2026-07-16
+  pullPolicy: IfNotPresent
+
+gitSync:
+  # URL of the esphome-config repo on Forgejo
+  repository: https://forgejo.eldamar.dev/akadmin/esphome-config
+  image:
+    repository: registry.k8s.io/git-sync/git-sync
+    tag: v4.4.2
+  period: 60s
+
+service:
+  port: 6052
+
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  host: esphome.eldamar.dev
+  tls:
+    secretName: esphome-tls
+
+persistence:
+  storageClass: local-path
+  size: 1Gi
