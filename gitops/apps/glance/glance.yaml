@@ -38,7 +38,7 @@ data:
           - size: full
             widgets:
               - type: iframe
-                source: https://home-assistant.eldamar.dev/lovelace/0
+                source: https://home-assistant.eldamar.dev/git-home/0
                 height: 400
 
               - type: videos
