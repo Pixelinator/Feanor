@@ -151,6 +151,9 @@ data:
                   - title: FoundryVTT
                     url: https://foundry.eldamar.dev/
                     icon: si:foundryvirtualtabletop
+                  - title: n8n
+                    url: https://n8n.eldamar.dev/
+                    icon: si:n8n
 
               - type: releases
                 cache: 1d
@@ -164,6 +167,7 @@ data:
                   - bitnami-labs/sealed-secrets
                   - cert-manager/cert-manager
                   - home-assistant/core
+                  - n8n-io/n8n
     # >>> END your Glance app configuration <<<
 ---
 # ------------------------------- DEPLOYMENT ---------------------------------
