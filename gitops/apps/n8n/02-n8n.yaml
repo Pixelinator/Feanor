@@ -1,0 +1,130 @@
+# ------------------------------- NAMESPACE ----------------------------------
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: n8n
+---
+# ---------------------------------- PVC --------------------------------------
+# Persists /home/node/.n8n: the auto-generated encryption key and local binary
+# data. Losing this volume makes stored credentials undecryptable.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: n8n-data
+  namespace: n8n
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+# ------------------------------- DEPLOYMENT ---------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: n8n
+  namespace: n8n
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # single PVC (RWO) — old pod must release it first
+  selector:
+    matchLabels:
+      app: n8n
+  template:
+    metadata:
+      labels:
+        app: n8n
+    spec:
+      securityContext:
+        fsGroup: 1000 # image runs as user node (uid 1000); make PVC writable
+      containers:
+        - name: n8n
+          image: docker.n8n.io/n8nio/n8n:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5678
+          env:
+            - name: DB_TYPE
+              value: postgresdb
+            - name: DB_POSTGRESDB_HOST
+              value: n8n-database
+            - name: DB_POSTGRESDB_PORT
+              value: "5432"
+            - name: DB_POSTGRESDB_DATABASE
+              value: n8n
+            - name: DB_POSTGRESDB_USER
+              value: n8n
+            - name: DB_POSTGRESDB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: n8n.n8n-database.credentials.postgresql.acid.zalan.do
+                  key: password
+            - name: N8N_HOST
+              value: n8n.eldamar.dev
+            - name: N8N_PROTOCOL
+              value: https
+            - name: WEBHOOK_URL
+              value: https://n8n.eldamar.dev/
+            # Fully local: no telemetry, no phone-home, no cloud templates
+            - name: N8N_DIAGNOSTICS_ENABLED
+              value: "false"
+            - name: N8N_VERSION_NOTIFICATIONS_ENABLED
+              value: "false"
+            - name: N8N_TEMPLATES_ENABLED
+              value: "false"
+            - name: N8N_HIRING_BANNER_ENABLED
+              value: "false"
+            - name: N8N_RUNNERS_ENABLED
+              value: "true"
+            - name: GENERIC_TIMEZONE
+              value: Europe/Berlin
+          volumeMounts:
+            - name: data
+              mountPath: /home/node/.n8n
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: n8n-data
+---
+# -------------------------------- SERVICE -----------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: n8n
+  namespace: n8n
+spec:
+  type: ClusterIP
+  selector:
+    app: n8n
+  ports:
+    - name: http
+      port: 5678
+      targetPort: 5678
+---
+# -------------------------------- INGRESS -----------------------------------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: n8n
+  namespace: n8n
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - n8n.eldamar.dev
+      secretName: n8n-tls
+  rules:
+    - host: n8n.eldamar.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: n8n
+                port:
+                  number: 5678
