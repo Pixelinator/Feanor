@@ -94,6 +94,9 @@ spec:
               value: "true"
             - name: GENERIC_TIMEZONE
               value: Europe/Berlin
+            # Read/Write File node may only touch the CV volume
+            - name: N8N_RESTRICT_FILE_ACCESS_TO
+              value: /data/cv
           volumeMounts:
             - name: data
               mountPath: /home/node/.n8n
