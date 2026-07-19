@@ -19,6 +19,20 @@ spec:
     requests:
       storage: 1Gi
 ---
+# CV PDFs for the job-application workflows, copied in via `kubectl cp`,
+# mounted read-only at /data/cv.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: n8n-job-assets
+  namespace: n8n
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
 # ------------------------------- DEPLOYMENT ---------------------------------
 apiVersion: apps/v1
 kind: Deployment
@@ -83,10 +97,16 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /home/node/.n8n
+            - name: job-assets
+              mountPath: /data/cv
+              readOnly: true
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: n8n-data
+        - name: job-assets
+          persistentVolumeClaim:
+            claimName: n8n-job-assets
 ---
 # -------------------------------- SERVICE -----------------------------------
 apiVersion: v1
