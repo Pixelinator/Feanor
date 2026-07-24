@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: game-engine-wiki-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: game-engine-wiki-mcp
+  template:
+    metadata:
+      labels:
+        app: game-engine-wiki-mcp
+    spec:
+      securityContext:
+        fsGroup: 65533   # git-sync default user
+      initContainers:
+        # One-time clone so /repo/current exists before the mcp container starts.
+        - name: git-sync-init
+          image: "{{ .Values.gitSync.image.repository }}:{{ .Values.gitSync.image.tag }}"
+          args:
+            - --repo={{ .Values.gitSync.repository }}
+            - --depth=1
+            - --one-time
+            - --root=/repo
+            - --link=current
+          env:
+            - name: GITSYNC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: game-engine-wiki-git-credentials
+                  key: username
+            - name: GITSYNC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: game-engine-wiki-git-credentials
+                  key: token
+          volumeMounts:
+            - name: repo
+              mountPath: /repo
+      containers:
+        - name: mcp
+          image: "{{ .Values.mcp.image }}"
+          command: ["npx", "-y", "supergateway"]
+          args:
+            - --stdio
+            - "npx -y @modelcontextprotocol/server-filesystem /repo/current"
+            - --outputTransport
+            - streamableHttp
+            - --port
+            - "{{ .Values.mcp.port }}"
+          env:
+            - name: HOME
+              value: /home/node
+          ports:
+            - containerPort: {{ .Values.mcp.port }}
+              name: http
+          volumeMounts:
+            - name: repo
+              mountPath: /repo
+              readOnly: true   # enforces read-only regardless of the tool list
+            - name: npm-cache
+              mountPath: /home/node
+          readinessProbe:
+            tcpSocket: { port: http }
+            initialDelaySeconds: 20   # npx cold-installs both packages on start
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 512Mi }
+        - name: git-sync
+          image: "{{ .Values.gitSync.image.repository }}:{{ .Values.gitSync.image.tag }}"
+          args:
+            - --repo={{ .Values.gitSync.repository }}
+            - --depth=1
+            - --period={{ .Values.gitSync.period }}
+            - --root=/repo
+            - --link=current
+          env:
+            - name: GITSYNC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: game-engine-wiki-git-credentials
+                  key: username
+            - name: GITSYNC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: game-engine-wiki-git-credentials
+                  key: token
+          volumeMounts:
+            - name: repo
+              mountPath: /repo
+          resources:
+            requests: { cpu: 10m, memory: 32Mi }
+            limits: { memory: 128Mi }
+      volumes:
+        - name: repo
+          emptyDir: {}
+        - name: npm-cache
+          emptyDir: {}
