@@ -1,0 +1,20 @@
+gitSync:
+  # URL of the game-engine-wiki repo on Forgejo (private)
+  repository: https://forgejo.eldamar.dev/akadmin/game-engine-wiki
+  image:
+    repository: registry.k8s.io/git-sync/git-sync
+    tag: v4.4.2
+  period: 120s
+
+mcp:
+  # ponytail: npx pulls latest supergateway/server-filesystem on every pod
+  # start instead of a pinned image. Fine for a homelab; bake+pin a real
+  # image if this needs to be trusted long-term.
+  image: node:22-alpine
+  port: 8808
+
+service:
+  # LAN-only: no ingress, nothing forwarded publicly. Claude Code's HTTP
+  # transport can't follow an Authentik login redirect, so forward-auth
+  # (the esphome/HA pattern) doesn't work for this app.
+  nodePort: 30808
