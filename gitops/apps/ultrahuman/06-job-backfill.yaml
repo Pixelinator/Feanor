@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: uh-ingest-backfill
+  namespace: ultrahuman
+spec:
+  # Suspended by default — this is a one-shot, manually triggered job.
+  # Run once with: kubectl patch job uh-ingest-backfill -n ultrahuman -p '{"spec":{"suspend":false}}'
+  suspend: true
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: ultrahuman-registry
+      containers:
+        - name: uh-ingest
+          image: forgejo.eldamar.dev/akadmin/ultrahuman-ingest:d41ee8e
+          args: ["backfill"]
+          env:
+            - name: TZ
+              value: "Europe/Berlin"
+            - name: LOG_LEVEL
+              value: "INFO"
+            - name: PGHOST
+              value: "ultrahuman-database"
+            - name: PGPORT
+              value: "5432"
+            - name: PGDATABASE
+              value: "ultrahuman"
+            - name: UH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ultrahuman-api-token
+                  key: token
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: ultrahuman.ultrahuman-database.credentials.postgresql.acid.zalan.do
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ultrahuman.ultrahuman-database.credentials.postgresql.acid.zalan.do
+                  key: password
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
