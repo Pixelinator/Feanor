@@ -60,7 +60,11 @@ forgejo-runner:
           network: ""
           enable_ipv6: false
           privileged: true
-          options: ""
+          # Exposes the dind sidecar's own docker socket inside job
+          # containers (Docker-outside-of-Docker), so `docker build`/`push`
+          # steps work. Trust expansion: any job on this runner gets
+          # docker-socket (root-equivalent) access to the shared daemon.
+          options: "-v /var/run/docker.sock:/var/run/docker.sock"
           workdir_parent: ""
           valid_volumes:
             - '**'
