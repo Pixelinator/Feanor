@@ -118,6 +118,22 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
+        # www must be a real copy, not a symlink (see link-git-dirs above), so
+        # it doesn't pick up changes on its own the way /config/git/current
+        # does. Re-copy periodically so e.g. ultrahuman's daily-refreshed
+        # dashboard chart SVGs actually show up without a pod restart.
+        - name: www-sync
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command:
+            - /bin/bash
+            - -c
+            - "while true; do cp -a /config/git/current/www/. /config/www/; sleep 300; done"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+          resources:
+            requests: { cpu: "5m", memory: "16Mi" }
+            limits: { memory: "32Mi" }
       volumes:
         - name: config
           persistentVolumeClaim:
