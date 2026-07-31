@@ -4,9 +4,9 @@ metadata:
   name: uh-ingest-backfill
   namespace: ultrahuman
 spec:
-  # Suspended by default — this is a one-shot, manually triggered job.
-  # Run once with: kubectl patch job uh-ingest-backfill -n ultrahuman -p '{"spec":{"suspend":false}}'
-  suspend: true
+  # One-shot, manually triggered. AutoSync+selfHeal means a live kubectl
+  # patch gets reverted — flip this in git, push, and let ArgoCD apply it.
+  suspend: false
   backoffLimit: 3
   template:
     spec:
