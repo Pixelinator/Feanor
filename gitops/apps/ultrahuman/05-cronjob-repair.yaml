@@ -20,7 +20,7 @@ spec:
             - name: ultrahuman-registry
           containers:
             - name: uh-ingest
-              image: forgejo.eldamar.dev/akadmin/ultrahuman-ingest:d41ee8e
+              image: forgejo.eldamar.dev/akadmin/ultrahuman-ingest:1bf1c53
               args: ["repair", "--days", "30"]
               env:
                 - name: TZ
