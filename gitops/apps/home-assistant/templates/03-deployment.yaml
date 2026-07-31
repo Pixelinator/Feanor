@@ -72,6 +72,13 @@ spec:
             # sync loop stalls.
             - name: PYTHONDONTWRITEBYTECODE
               value: "1"
+            # Read-only role (ultrahuman_ha_reader) into the ultrahuman DB,
+            # used by ha-config/packages/ultrahuman.yaml's sql: sensors.
+            - name: ULTRAHUMAN_DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ultrahuman-db-credentials
+                  key: db_url
           ports:
             - containerPort: {{ .Values.service.port }}
           volumeMounts:
