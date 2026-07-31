@@ -15,7 +15,7 @@ spec:
         - name: ultrahuman-registry
       containers:
         - name: uh-ingest
-          image: forgejo.eldamar.dev/akadmin/ultrahuman-ingest:1bf1c53
+          image: forgejo.eldamar.dev/akadmin/ultrahuman-ingest:949a58a
           args: ["backfill"]
           env:
             - name: TZ

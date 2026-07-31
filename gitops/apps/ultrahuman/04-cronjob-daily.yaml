@@ -19,7 +19,7 @@ spec:
             - name: ultrahuman-registry
           containers:
             - name: uh-ingest
-              image: forgejo.eldamar.dev/akadmin/ultrahuman-ingest:1bf1c53
+              image: forgejo.eldamar.dev/akadmin/ultrahuman-ingest:949a58a
               args: ["daily"]
               env:
                 - name: TZ
@@ -47,6 +47,18 @@ spec:
                     secretKeyRef:
                       name: ultrahuman.ultrahuman-database.credentials.postgresql.acid.zalan.do
                       key: password
+                - name: HA_CONFIG_REPO_URL
+                  value: "https://forgejo.eldamar.dev/akadmin/ha-config.git"
+                - name: HA_CONFIG_GIT_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: ultrahuman-ha-config-git
+                      key: username
+                - name: HA_CONFIG_GIT_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: ultrahuman-ha-config-git
+                      key: token
               resources:
                 requests:
                   cpu: "50m"
