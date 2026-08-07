@@ -5,6 +5,11 @@
   time.timeZone = "Europe/Berlin";
 
   networking.hostName = host.hostname;
+  # k3s dials its embedded apiserver over IPv6 loopback ([::1]:PORT) during
+  # startup and treats a refusal as fatal instead of retrying. SLAAC-assigned
+  # IPv6 on this host triggers that race on every boot; nothing here uses
+  # IPv6, so disabling it sidesteps the bug entirely.
+  networking.enableIPv6 = false;
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [
