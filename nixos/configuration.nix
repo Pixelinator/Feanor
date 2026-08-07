@@ -70,4 +70,15 @@
       "--tls-san=localhost"
     ];
   };
+
+  # k3s's upstream unit disables systemd's start-limit (StartLimitIntervalSec=0),
+  # so a persistent failure (e.g. a bad cert/kubeconfig) restarts forever instead
+  # of giving up. That turned a stale-kubeconfig bug into a 2+ hour crash loop
+  # that pinned the CPU. Cap it: 10 restarts in 10 minutes is plenty for a slow
+  # boot-time race, but a genuinely broken config will now fail out in ~2
+  # minutes instead of spinning indefinitely.
+  systemd.services.k3s = {
+    startLimitIntervalSec = 600;
+    startLimitBurst = 10;
+  };
 }
