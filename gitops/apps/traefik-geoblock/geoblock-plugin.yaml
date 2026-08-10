@@ -1,0 +1,23 @@
+# Enables the geoblock Traefik plugin on k3s's bundled Traefik (deployed as
+# a HelmChart resource by k3s itself, not one of gitops/apps/* directly).
+# A HelmChartConfig with the same name/namespace as that HelmChart gets
+# merged into its values -- this is the standard way to customize k3s's
+# packaged Traefik. No Pilot token needed (dropped as a requirement since
+# Traefik 2.7); the plugin's IP2Location LITE database ships inside its own
+# module, downloaded automatically once declared here.
+#
+# This only registers the plugin -- it does nothing on its own. The actual
+# blocking rule lives in the Middleware CRD in gitops/apps/forgejo, which
+# references this plugin by name.
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    experimental:
+      plugins:
+        geoblock:
+          moduleName: github.com/nscuro/traefik-plugin-geoblock
+          version: v0.14.0
