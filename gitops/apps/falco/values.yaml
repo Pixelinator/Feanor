@@ -1,0 +1,71 @@
+falco:
+  # modern_ebpf needs no kernel headers / kmod build step (unlike kmod/auto),
+  # which makes it the reliable choice on a NixOS node where matching kernel
+  # headers for the running kernel aren't guaranteed to be present.
+  # Requires kernel >= 5.8, which feanor's NixOS 25.05 kernel satisfies.
+  driver:
+    kind: modern_ebpf
+    modernEbpf:
+      # Runs with a handful of added capabilities (BPF, SYS_RESOURCE, PERFMON,
+      # SYS_PTRACE) instead of a fully privileged container.
+      leastPrivileged: true
+
+  # collectors.cri.sockets already includes /run/k3s/containerd/containerd.sock
+  # by default in this chart, so container metadata enrichment (pod/image name
+  # on alerts) works out of the box against k3s with no override needed here.
+
+  falco:
+    json_output: true
+    # Default is "debug", which is noisy (logs benign events too). "warning"
+    # keeps this to things actually worth looking at; drop to "notice" while
+    # tuning if you want to see more of what the default ruleset considers.
+    priority: warning
+    http_output:
+      # Falco's default ruleset (falco-rules:5, installed automatically by the
+      # falcoctl init/sidecar containers) already covers the pattern from the
+      # Forgejo incident: crypto-miner process/network signatures, suspicious
+      # network tools launched in a container, writes below binary dirs, etc.
+      #
+      # Flip this on once you've picked a notification sink (e.g. a
+      # self-hosted ntfy topic, or a Slack/Discord webhook). Until then,
+      # alerts still land in `kubectl logs` on the falco pods.
+      enabled: false
+      url: ""
+
+  # Custom rule tailored to this specific incident: the cryptominer ran as a
+  # binary executed directly out of /tmp inside the Forgejo pod (and deleted
+  # itself immediately after exec). The default ruleset catches a lot of
+  # adjacent behavior, but not this exact "exec straight out of /tmp" shape.
+  customRules:
+    rules-tmp-exec.yaml: |-
+      - rule: Execution from /tmp inside container
+        desc: >
+          Detects execve() of a binary living under /tmp inside a container.
+          Legitimate workloads rarely exec directly out of /tmp; this is the
+          exact pattern used by the CVE-2026-60004 Forgejo diffpatch/hook RCE
+          cryptominer dropper observed on this cluster on 2026-08-10 (a
+          self-deleting binary run from /tmp inside the Forgejo pod).
+        condition: >
+          spawned_process and container and
+          (proc.exepath startswith /tmp/ or proc.cwd startswith /tmp/)
+        output: >
+          Process executed from /tmp in container (user=%user.name command=%proc.cmdline
+          exepath=%proc.exepath parent=%proc.pname container=%container.name
+          image=%container.image.repository)
+        priority: CRITICAL
+        tags: [container, process, mitre_execution]
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+
+  # Enable + configure once you've picked a notification sink. Falcosidekick
+  # fans a single Falco alert stream out to 70+ destinations (ntfy, Slack,
+  # Discord, generic webhook, etc.) instead of hand-rolling http_output.
+  # See https://github.com/falcosecurity/charts/blob/master/charts/falcosidekick/values.yaml
+  falcosidekick:
+    enabled: false
