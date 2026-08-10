@@ -18,7 +18,11 @@ data:
           invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
           client_type: confidential
           client_id: forgejo
-          client_secret: ***REMOVED-LEAKED-SECRET***
+          # Rotated after the previous value was committed here in plain
+          # text. Read from a SealedSecret-backed file mounted on the
+          # authentik-worker (see authentik/values.yaml worker.volumes),
+          # not the blueprint YAML itself.
+          client_secret: !File /secrets/forgejo-oauth2-client-secret/client-secret
           signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
           access_token_validity: hours=1
           refresh_token_validity: days=30
@@ -41,13 +45,25 @@ data:
           provider: !Find [authentik_providers_oauth2.oauth2provider, [name, Provider for forgejo]]
           policy_engine_mode: any
 
-      # Separate from the OAuth2 provider above (that one's Forgejo's own
-      # "Sign in with Authentik" button). This one gates the Traefik ingress
-      # itself via forward-auth, added after the CVE-2026-60004 incident so
-      # anonymous scanners can't reach Forgejo's web UI at all. Git smart-HTTP
-      # and the REST API are excluded (skip_path_regex below) since those
-      # authenticate per-request via Forgejo's own tokens/Basic-Auth, not a
-      # browser SSO redirect that a git client can't follow.
+  # Deliberately a SEPARATE blueprint file/ConfigMap-key from forgejo.yaml
+  # above, not appended to it. Authentik validates a blueprint file as one
+  # atomic unit -- forgejo.yaml's "ak-api" scope-mapping !Find already
+  # resolves to nothing on this Authentik version (pre-existing, unrelated
+  # to this change) and fails validation, which would otherwise have blocked
+  # every entry in this file too, forward-auth included.
+  forgejo-forwardauth.yaml: |
+    version: 1
+    metadata:
+      name: homelab-forgejo-forwardauth
+    entries:
+      # Separate from the OAuth2 provider in forgejo.yaml (that one's
+      # Forgejo's own "Sign in with Authentik" button). This one gates the
+      # Traefik ingress itself via forward-auth, added after the
+      # CVE-2026-60004 incident so anonymous scanners can't reach Forgejo's
+      # web UI at all. Git smart-HTTP and the REST API are excluded
+      # (skip_path_regex below) since those authenticate per-request via
+      # Forgejo's own tokens/Basic-Auth, not a browser SSO redirect that a
+      # git client can't follow.
       #
       # NOTE: assigning this provider to the embedded outpost happens
       # centrally in authentik-blueprints-base (90-outposts.yaml), same as

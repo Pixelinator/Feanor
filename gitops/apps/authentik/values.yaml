@@ -838,15 +838,18 @@ authentik:
 
     # -- Additional volumeMounts to the authentik worker main container
     volumeMounts:
-      []
-      # - name: custom
-      #   mountPath: /custom
+      # Read only by the forgejo-forwardauth.yaml blueprint's !File tag
+      # (only the worker applies blueprints -- the server reads the already-
+      # persisted secret from the DB, doesn't need this file).
+      - name: forgejo-oauth2-client-secret
+        mountPath: /secrets/forgejo-oauth2-client-secret
+        readOnly: true
 
     # -- Additional volumes to the authentik worker pod
     volumes:
-      []
-      # - name: custom
-      #   emptyDir: {}
+      - name: forgejo-oauth2-client-secret
+        secret:
+          secretName: forgejo-oauth2-client-secret
 
     # -- Annotations to be added to the authentik worker Deployment
     deploymentAnnotations: {}
