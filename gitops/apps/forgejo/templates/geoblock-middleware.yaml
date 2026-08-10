@@ -1,0 +1,21 @@
+# Requires the geoblock local plugin registered on Traefik itself -- see
+# gitops/apps/traefik-geoblock. databaseFilePath must match exactly where
+# that app's init container places the plugin (verified live against the
+# cluster, not guessed -- the registry-fetched plugin path changes on every
+# Traefik restart, hence the local-plugins setup there).
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: geoblock
+spec:
+  plugin:
+    geoblock:
+      enabled: true
+      databaseFilePath: /plugins-local/src/github.com/nscuro/traefik-plugin-geoblock/IP2LOCATION-LITE-DB1.IPV6.BIN
+      allowedCountries:
+        - DE
+      defaultAllow: false
+      # LAN/cluster-internal traffic never has a meaningful "country" -- this
+      # only matters for the public ingress path anyway, but keep it correct.
+      allowPrivate: true
+      disallowedStatusCode: 403

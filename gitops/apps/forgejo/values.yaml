@@ -176,7 +176,7 @@ forgejo:
     annotations:
       cert-manager.io/cluster-issuer: "letsencrypt-production"
       traefik.ingress.kubernetes.io/rewrite-target: /
-      traefik.ingress.kubernetes.io/router.middlewares: forgejo-authentik-forwardauth@kubernetescrd
+      traefik.ingress.kubernetes.io/router.middlewares: forgejo-geoblock@kubernetescrd,forgejo-authentik-forwardauth@kubernetescrd
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
     hosts:
