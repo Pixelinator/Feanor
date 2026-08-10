@@ -63,6 +63,18 @@ falco:
       cpu: 1000m
       memory: 1024Mi
 
+  # Cluster-internal only (no ingress) — exposes the existing health webserver
+  # (webserver.listen_port, already 8765 by default) as a stable ClusterIP so
+  # Glance can poll /healthz for a status tile instead of only being
+  # observable via `kubectl logs`.
+  services:
+    - name: falco-web
+      type: ClusterIP
+      ports:
+        - port: 8765
+          targetPort: 8765
+          protocol: TCP
+
   # Enable + configure once you've picked a notification sink. Falcosidekick
   # fans a single Falco alert stream out to 70+ destinations (ntfy, Slack,
   # Discord, generic webhook, etc.) instead of hand-rolling http_output.
