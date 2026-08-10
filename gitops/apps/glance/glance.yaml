@@ -49,18 +49,6 @@ data:
                   - UCBJycsmduvYEL83R_U4JriQ # Marques Brownlee
                   - UCHnyfMqiRRG1u-2MsSQLbXA # Veritasium
 
-              - type: group
-                widgets:
-                  - type: reddit
-                    subreddit: technology
-                    show-thumbnails: true
-                  - type: reddit
-                    subreddit: selfhosted
-                    show-thumbnails: true
-                  - type: reddit
-                    subreddit: homelab
-                    show-thumbnails: true
-
               - type: custom-api
                 title: Epic Games
                 cache: 1h
