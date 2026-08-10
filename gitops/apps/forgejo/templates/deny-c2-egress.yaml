@@ -1,0 +1,17 @@
+# Blocks egress to the cryptominer C2 IP observed delivering the payload
+# via the CVE-2026-60004 diffpatch/post-index-change hook RCE. Defense in
+# depth only — the real fix is the patched image + closed registration.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-known-miner-c2
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 172.245.88.160/32

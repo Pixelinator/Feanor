@@ -53,7 +53,9 @@ forgejo:
     registry: code.forgejo.org
     repository: forgejo/forgejo
     # Overrides the image tag whose default is the chart appVersion.
-    tag: ""
+    # Pinned explicitly (not just relying on chart appVersion) after the
+    # CVE-2026-60004 diffpatch/post-index-change hook RCE incident.
+    tag: "15.0.6-rootless"
     digest: ""
     pullPolicy: IfNotPresent
     rootless: true
@@ -572,7 +574,10 @@ forgejo:
         ACCOUNT_LINKING: auto
 
       ## @param gitea.config.service Configuration for miscellaneous Forgejo services
-      service: {}
+      service:
+        # Closed after repeated automated exploitation of self-registered
+        # accounts (CVE-2026-60004 diffpatch/post-index-change hook RCE).
+        DISABLE_REGISTRATION: true
 
       ## @param gitea.config.ssh.minimum_key_sizes SSH minimum key sizes
       ssh.minimum_key_sizes: {}
