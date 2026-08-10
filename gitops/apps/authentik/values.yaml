@@ -230,6 +230,8 @@ authentik:
       - authentik-blueprints-opencloud
       - authentik-blueprints-home-assistant
       - authentik-blueprints-esphome
+      - authentik-blueprints-glance
+      - authentik-blueprints-n8n
     # -- List of secrets to mount blueprints from.
     # Only keys in the secret ending with `.yaml` will be discovered and applied.
     secrets: []
