@@ -47,7 +47,7 @@ falco:
           self-deleting binary run from /tmp inside the Forgejo pod).
         condition: >
           spawned_process and container and
-          (proc.exepath startswith /tmp/ or proc.cwd startswith /tmp/)
+          proc.exepath startswith /tmp/
         output: >
           Process executed from /tmp in container (user=%user.name command=%proc.cmdline
           exepath=%proc.exepath parent=%proc.pname container=%container.name
