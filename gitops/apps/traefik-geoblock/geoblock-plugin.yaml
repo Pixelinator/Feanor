@@ -2,13 +2,20 @@
 # a HelmChart resource by k3s itself, not one of gitops/apps/* directly).
 # A HelmChartConfig with the same name/namespace as that HelmChart gets
 # merged into its values -- this is the standard way to customize k3s's
-# packaged Traefik. No Pilot token needed (dropped as a requirement since
-# Traefik 2.7); the plugin's IP2Location LITE database ships inside its own
-# module, downloaded automatically once declared here.
+# packaged Traefik.
+#
+# Uses "local plugins" mode, NOT the registry-fetched experimental.plugins
+# mode. Verified live against this cluster: registry-fetched plugins land
+# under a randomly-named /plugins-storage/sources/gop-<random>/... directory
+# that changes on every single Traefik restart (confirmed by deleting the
+# pod twice and diffing the path). A Middleware's databaseFilePath can't
+# reference a path that moves every restart, so local-plugins mode is used
+# instead: the plugin source is fetched once into a small PVC we control
+# (traefik-geoblock-plugin.yaml) at a path WE choose, which stays stable.
 #
 # This only registers the plugin -- it does nothing on its own. The actual
 # blocking rule lives in the Middleware CRD in gitops/apps/forgejo, which
-# references this plugin by name.
+# references this plugin by name and the exact path this file mounts it at.
 apiVersion: helm.cattle.io/v1
 kind: HelmChartConfig
 metadata:
@@ -17,7 +24,41 @@ metadata:
 spec:
   valuesContent: |-
     experimental:
-      plugins:
+      localPlugins:
         geoblock:
           moduleName: github.com/nscuro/traefik-plugin-geoblock
-          version: v0.14.0
+    deployment:
+      initContainers:
+        # Idempotent: only clones on first run. Persisted via the PVC below,
+        # so this doesn't re-fetch from GitHub (and can't fail Traefik's
+        # startup if GitHub is briefly unreachable) on every pod restart.
+        - name: fetch-geoblock-plugin
+          image: alpine/git:latest
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
+            readOnlyRootFilesystem: false
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              dest=/plugins-local/src/github.com/nscuro/traefik-plugin-geoblock
+              if [ -f "$dest/IP2LOCATION-LITE-DB1.IPV6.BIN" ]; then
+                echo "geoblock plugin already present, skipping fetch"
+                exit 0
+              fi
+              mkdir -p "$dest"
+              git clone --depth 1 --branch v0.14.0 \
+                https://github.com/nscuro/traefik-plugin-geoblock.git "$dest"
+              chmod -R a+rX /plugins-local
+          volumeMounts:
+            - name: geoblock-plugin
+              mountPath: /plugins-local
+      additionalVolumes:
+        - name: geoblock-plugin
+          persistentVolumeClaim:
+            claimName: traefik-geoblock-plugin
+    additionalVolumeMounts:
+      - name: geoblock-plugin
+        mountPath: /plugins-local

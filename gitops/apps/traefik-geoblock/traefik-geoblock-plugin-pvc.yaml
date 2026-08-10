@@ -1,0 +1,15 @@
+# Backs the geoblock plugin's local-plugins directory (see geoblock-plugin.yaml
+# for why this needs to be persistent rather than an emptyDir). Small: it's
+# just the plugin's Go source plus its ~2MB IP2Location LITE database.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: traefik-geoblock-plugin
+  namespace: kube-system
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 100Mi
