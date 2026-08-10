@@ -4,7 +4,6 @@
   username     = "dominic";
   system       = "x86_64-linux";
   sshPublicKeys = [
-    # Add your SSH public key here so deploy-rs can authenticate without a password.
-    # Example: "ssh-ed25519 AAAA... user@host"
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGmXGvnNWECIqtl7abnTguHOfxpgrzLMKAEOmKM1+pFB forsterdominic2@gmail.com"
   ];
 }

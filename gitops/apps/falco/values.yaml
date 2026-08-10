@@ -75,9 +75,20 @@ falco:
           targetPort: 8765
           protocol: TCP
 
-  # Enable + configure once you've picked a notification sink. Falcosidekick
-  # fans a single Falco alert stream out to 70+ destinations (ntfy, Slack,
-  # Discord, generic webhook, etc.) instead of hand-rolling http_output.
-  # See https://github.com/falcosecurity/charts/blob/master/charts/falcosidekick/values.yaml
+  # Falco alerts currently only land in `kubectl logs` on the falco pods --
+  # nothing pages anyone on a repeat of the 2026-08-10 incident. Pick a real
+  # sink, fill in ONE of the blocks below, then flip both `enabled: true`
+  # here and `falco.falco.http_output.enabled: true` above.
+  # Full destination list: https://github.com/falcosecurity/charts/blob/master/charts/falcosidekick/values.yaml
   falcosidekick:
     enabled: false
+    config:
+      # ntfy.sh (or self-hosted): free push notifications via the ntfy app.
+      # ntfy:
+      #   host: "https://ntfy.sh"
+      #   topic: "CHANGE-ME-feanor-falco"
+      # Discord/Slack incoming webhook:
+      # discord:
+      #   webhookurl: "https://discord.com/api/webhooks/CHANGE-ME"
+      # slack:
+      #   webhookurl: "https://hooks.slack.com/services/CHANGE-ME"

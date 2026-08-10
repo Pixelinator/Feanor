@@ -10,23 +10,25 @@
   # IPv6 on this host triggers that race on every boot; nothing here uses
   # IPv6, so disabling it sidesteps the bug entirely.
   networking.enableIPv6 = false;
+  # extraInputRules below is nftables syntax; the classic iptables-based
+  # firewall backend (the default) doesn't have that option at all.
+  networking.nftables.enable = true;
+  # LAN this host lives on. Ports that should never be reachable from outside
+  # the homelab (k3s API, kubelet, postgres, node-exporter) are scoped to this
+  # CIDR via extraInputRules instead of the blanket allowedTCPPorts below.
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [
       22    # ssh
       80    # http
       443   # https
-      5432
-      6443  # k3s
-      8080
-      9100  # prometheus node exporter
-      10250 # kubernetes metrics
-      30080
-      30081
     ];
     allowedUDPPorts = [
       10001 # unifi discovery
     ];
+    extraInputRules = ''
+      ip saddr 192.168.188.0/24 tcp dport { 5432, 6443, 9100, 10250 } accept
+    '';
   };
 
   users.users.${host.username} = {
@@ -34,14 +36,31 @@
     extraGroups = [ "video" "wheel" ];
     openssh.authorizedKeys.keys = host.sshPublicKeys;
   };
+  # Declarative account state only — no out-of-band `passwd` can silently
+  # re-enable password login once PasswordAuthentication is off below.
+  users.mutableUsers = false;
 
-  # Required so deploy-rs can activate the system profile without a password prompt.
+  # Required so deploy-rs can activate the system profile without a password
+  # prompt. Scoped to nix-store activation scripts (deploy-rs/nixos-rebuild
+  # both exec a per-generation /nix/store/*-{switch-to-configuration,activate}
+  # path) rather than ALL, so a compromised dominic account doesn't get an
+  # unrestricted root shell for free.
   security.sudo.extraRules = [{
-    users    = [ host.username ];
-    commands = [{ command = "ALL"; options = [ "NOPASSWD" ]; }];
+    users = [ host.username ];
+    commands = [
+      { command = "/nix/store/*-switch-to-configuration"; options = [ "NOPASSWD" ]; }
+      { command = "/nix/store/*-activate"; options = [ "NOPASSWD" ]; }
+    ];
   }];
 
-  services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      PermitRootLogin = "no";
+      KbdInteractiveAuthentication = false;
+    };
+  };
   environment.systemPackages = with pkgs; [
     kubectl kubernetes-helm git jq headscale postgresql vim btop tmux starship argocd kubeseal
   ];

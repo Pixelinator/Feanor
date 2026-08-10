@@ -1,0 +1,8 @@
+#!/bin/sh
+# Blocks a commit if gitleaks finds a secret in the staged diff. CI
+# (.forgejo/workflows/gitleaks.yml) is the real gate; this just catches it
+# before it ever leaves your machine. One-time setup:
+#   git config core.hooksPath .githooks
+command -v docker >/dev/null 2>&1 || { echo "docker not found, skipping gitleaks pre-commit scan"; exit 0; }
+docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest \
+  protect --source=/repo --staged -v --exit-code 1

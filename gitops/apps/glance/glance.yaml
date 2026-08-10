@@ -227,6 +227,31 @@ spec:
         8080 # Forward to the containerPort on the pod
         # (Glance serves on 8080 by default)
 ---
+# ------------------------------- MIDDLEWARE ---------------------------------
+# Gates glance behind authentik forward-auth -- it has no login of its own and
+# was reachable by anyone on the internet without this.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: authentik-forwardauth
+  namespace: glance
+spec:
+  forwardAuth:
+    address: http://authentik-server.authentik.svc.cluster.local:80/outpost.goauthentik.io/auth/traefik
+    trustForwardHeader: true
+    authResponseHeaders:
+      - X-authentik-username
+      - X-authentik-groups
+      - X-authentik-email
+      - X-authentik-name
+      - X-authentik-uid
+      - X-authentik-jwt
+      - X-authentik-meta-jwks
+      - X-authentik-meta-outpost
+      - X-authentik-meta-provider
+      - X-authentik-meta-app
+      - X-authentik-meta-version
+---
 # -------------------------------- INGRESS -----------------------------------
 # Only apply this if you already run an ingress controller (e.g., NGINX or Traefik).
 # It will let you access Glance at http(s)://glance.feanor.local/
@@ -237,6 +262,7 @@ metadata:
   namespace: glance
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
+    traefik.ingress.kubernetes.io/router.middlewares: glance-authentik-forwardauth@kubernetescrd
 spec:
   # If you use cert-manager, you can add a TLS section for automatic certs.
   ingressClassName: traefik

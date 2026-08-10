@@ -1,0 +1,22 @@
+# Default-deny ingress: only same-namespace pods and traefik (the k3s-bundled
+# ingress controller, kube-system) may reach pods here. Egress is left open --
+# restricting it blind risks breaking DNS/ACME/outbound API calls that can't
+# be verified without live cluster access; ingress-only still stops lateral
+# movement from a compromised pod elsewhere in the cluster reaching this
+# namespace's Services directly (the gap that let one open pg_hba be reachable
+# cluster-wide).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: home-assistant
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector: {}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system

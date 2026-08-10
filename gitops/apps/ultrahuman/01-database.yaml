@@ -34,4 +34,7 @@ spec:
       locale: "en_US.UTF-8"
     pg_hba:
       - local all all trust
-      - host all all 0.0.0.0/0 md5
+      # Was 0.0.0.0/0 -- any pod cluster-wide could attempt password auth.
+      # Scoped to k3s's default pod CIDR; the ultrahuman NetworkPolicy
+      # (network-policy.yaml) is the primary control, this is defense in depth.
+      - host all all 10.42.0.0/16 md5

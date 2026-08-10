@@ -59,6 +59,13 @@ forgejo-runner:
         container:
           network: ""
           enable_ipv6: false
+          # ponytail: privileged + host docker.sock is root-equivalent access
+          # to the node for any CI job. Accepted for now because Forgejo has
+          # DISABLE_REGISTRATION: true (values.yaml, forgejo app) so only
+          # accounts we created can push jobs here -- the arbitrary-untrusted-
+          # job case is already closed off at that layer. Upgrade path if
+          # that ever changes: swap to a rootless runner image or sysbox/
+          # gVisor sandboxing instead of a shared docker.sock.
           privileged: true
           # Exposes the dind sidecar's own docker socket inside job
           # containers (Docker-outside-of-Docker), so `docker build`/`push`

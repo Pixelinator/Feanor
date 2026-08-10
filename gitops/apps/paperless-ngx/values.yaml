@@ -94,7 +94,8 @@ paperless-ngx:
     architecture: standalone
     auth:
       enabled: true
-      password: "paperless"
+      existingSecret: paperless-secrets
+      existingSecretPasswordKey: redis-password
     master:
       persistence:
         enabled: true
