@@ -41,16 +41,19 @@
   users.mutableUsers = false;
 
   # Required so deploy-rs can activate the system profile without a password
-  # prompt. Scoped to nix-store activation scripts (deploy-rs/nixos-rebuild
-  # both exec a per-generation /nix/store/*-{switch-to-configuration,activate}
-  # path) rather than ALL, so a compromised dominic account doesn't get an
-  # unrestricted root shell for free.
+  # prompt.
+  #
+  # ponytail: this is unrestricted NOPASSWD ALL, not scoped to just the
+  # activation script. It was briefly scoped down, but mutableUsers=false
+  # (above) means dominic has no password hash at all -- scoping sudo to
+  # specific commands means every OTHER sudo call (kubectl, systemctl, ...)
+  # prompts for a password that can never be entered, locking the sole admin
+  # out of their own box. Single-admin homelab, and the real remote-attacker
+  # path this would guard against is already closed by key-only SSH above;
+  # revisit only if a second, less-trusted account is ever added.
   security.sudo.extraRules = [{
-    users = [ host.username ];
-    commands = [
-      { command = "/nix/store/*-switch-to-configuration"; options = [ "NOPASSWD" ]; }
-      { command = "/nix/store/*-activate"; options = [ "NOPASSWD" ]; }
-    ];
+    users    = [ host.username ];
+    commands = [{ command = "ALL"; options = [ "NOPASSWD" ]; }];
   }];
 
   services.openssh = {
