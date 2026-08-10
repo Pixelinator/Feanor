@@ -32,7 +32,13 @@ data:
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-profile]]
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-offline_access]]
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-entitlements]]
-            - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/ak-api]]
+            # Renamed upstream at some point -- was "ak-api", now
+            # "scope-authentik_api" on this Authentik version (2025.10.1).
+            # The stale name is why this whole blueprint file was failing
+            # validation (matches the known "broken property-mappings
+            # blueprint" issue) and, more urgently, why the client_secret
+            # rotation above couldn't actually apply.
+            - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-authentik_api]]
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/proxy/scope-proxy]]
 
       - model: authentik_core.application
