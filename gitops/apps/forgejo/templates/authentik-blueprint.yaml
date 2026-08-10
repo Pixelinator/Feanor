@@ -40,3 +40,41 @@ data:
           group: dev
           provider: !Find [authentik_providers_oauth2.oauth2provider, [name, Provider for forgejo]]
           policy_engine_mode: any
+
+      # Separate from the OAuth2 provider above (that one's Forgejo's own
+      # "Sign in with Authentik" button). This one gates the Traefik ingress
+      # itself via forward-auth, added after the CVE-2026-60004 incident so
+      # anonymous scanners can't reach Forgejo's web UI at all. Git smart-HTTP
+      # and the REST API are excluded (skip_path_regex below) since those
+      # authenticate per-request via Forgejo's own tokens/Basic-Auth, not a
+      # browser SSO redirect that a git client can't follow.
+      #
+      # NOTE: assigning this provider to the embedded outpost happens
+      # centrally in authentik-blueprints-base (90-outposts.yaml), same as
+      # esphome/home-assistant.
+      - model: authentik_providers_proxy.proxyprovider
+        state: present
+        identifiers:
+          name: Provider for forgejo forward-auth
+        attrs:
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+          mode: forward_single
+          external_host: https://forgejo.eldamar.dev
+          # Git smart-HTTP endpoints (with or without a literal .git suffix
+          # on the repo path -- Forgejo accepts both) and the REST API.
+          skip_path_regex: |-
+            ^/[^/]+/[^/]+(\.git)?/info/refs$
+            ^/[^/]+/[^/]+(\.git)?/git-upload-pack$
+            ^/[^/]+/[^/]+(\.git)?/git-receive-pack$
+            ^/api/.*
+
+      - model: authentik_core.application
+        state: present
+        identifiers:
+          slug: forgejo-forwardauth
+        attrs:
+          name: forgejo (forward-auth)
+          group: dev
+          provider: !Find [authentik_providers_proxy.proxyprovider, [name, Provider for forgejo forward-auth]]
+          policy_engine_mode: any
