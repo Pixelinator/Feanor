@@ -844,12 +844,18 @@ authentik:
       - name: forgejo-oauth2-client-secret
         mountPath: /secrets/forgejo-oauth2-client-secret
         readOnly: true
+      - name: opencloud-oauth2-client-secret
+        mountPath: /secrets/opencloud-oauth2-client-secret
+        readOnly: true
 
     # -- Additional volumes to the authentik worker pod
     volumes:
       - name: forgejo-oauth2-client-secret
         secret:
           secretName: forgejo-oauth2-client-secret
+      - name: opencloud-oauth2-client-secret
+        secret:
+          secretName: opencloud-oauth2-client-secret
 
     # -- Annotations to be added to the authentik worker Deployment
     deploymentAnnotations: {}

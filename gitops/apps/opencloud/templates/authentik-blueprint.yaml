@@ -18,8 +18,25 @@ data:
           invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
           client_type: public
           client_id: opencloud
-          client_secret: ***REMOVED-LEAKED-SECRET***
-          redirect_uris: "https://cloud.eldamar.dev/web-oidc-callback\nhttps://cloud.eldamar.dev/oidc-silent-redirect.html\nhttps://cloud.eldamar.dev/oidc-callback.html"
+          # Rotated after the previous value was committed here in plain
+          # text. This is a public/PKCE client -- OpenCloud's own config
+          # never actually reads or sends this secret (confirmed: no
+          # client_secret anywhere in its deployment env or sealed config,
+          # only WEB_OIDC_CLIENT_ID) -- but Authentik's data model still
+          # wants a value stored, so it's sourced the same way as forgejo's
+          # for consistency: a SealedSecret-backed file on authentik-worker.
+          client_secret: !File /secrets/opencloud-oauth2-client-secret/client-secret
+          # redirect_uris changed from a newline-separated string to a list
+          # of {matching_mode, url} objects in a newer Authentik version --
+          # another reason (besides ak-api and the property_mappings unique-
+          # name collision) this blueprint has never actually applied.
+          redirect_uris:
+            - matching_mode: strict
+              url: https://cloud.eldamar.dev/web-oidc-callback
+            - matching_mode: strict
+              url: https://cloud.eldamar.dev/oidc-silent-redirect.html
+            - matching_mode: strict
+              url: https://cloud.eldamar.dev/oidc-callback.html
           signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
           access_token_validity: hours=1
           refresh_token_validity: days=30
@@ -29,7 +46,9 @@ data:
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-profile]]
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-offline_access]]
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-entitlements]]
-            - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/ak-api]]
+            # Renamed upstream at some point -- was "ak-api", now
+            # "scope-authentik_api" on this Authentik version (2025.10.1).
+            - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-authentik_api]]
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/proxy/scope-proxy]]
             - !Find [authentik_providers_oauth2.scopemapping, [managed, homelab.property-mapping.opencloud-groups]]
 
