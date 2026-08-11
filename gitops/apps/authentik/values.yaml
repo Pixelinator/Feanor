@@ -142,16 +142,16 @@ authentik:
     # -- Additional volumeMounts to all deployed Deployments. Does not apply to GeoIP
     # @default -- `[]` (See [values.yaml])
     volumeMounts:
-      []
-      # - name: custom
-      #   mountPath: /custom
+      - name: dshm
+        mountPath: /dev/shm
 
     # -- Additional volumes to all deployed Deployments.
     # @default -- `[]` (See [values.yaml])
     volumes:
-      []
-      # - name: custom
-      #   emptyDir: {}
+      - name: dshm
+        emptyDir:
+          medium: Memory
+          sizeLimit: 256Mi
 
   ## Authentik configuration
   authentik:
