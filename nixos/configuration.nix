@@ -27,7 +27,11 @@
       10001 # unifi discovery
     ];
     extraInputRules = ''
-      ip saddr 192.168.188.0/24 tcp dport { 5432, 6443, 9100, 10250 } accept
+      # 10.42.0.0/16 is k3s's pod CIDR: the apiserver, kubelet, and postgres
+      # are host processes, not pods, so pod-originated traffic to them (e.g.
+      # Traefik watching the apiserver) arrives here as if from outside the
+      # host and needs the same allowance as the LAN.
+      ip saddr { 192.168.188.0/24, 10.42.0.0/16 } tcp dport { 5432, 6443, 9100, 10250 } accept
     '';
   };
 
